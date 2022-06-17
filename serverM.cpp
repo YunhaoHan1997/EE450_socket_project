@@ -35,34 +35,34 @@ struct transaction{
 vector<transaction> transactions;
 map<string, int> wallets;
 
-struct sockaddr_in MAddrTCPClient,MAddrTCPMonitor, MAddrUDP, clientAddr, serverAAddr, serverBAddr, serverCAddr;
-int M_TCPClient_sockfd,M_TCPMonitor_sockfd, M_UDP_sockfd, new_aws_TCP_sockfd;
+struct sockaddr_in m_tcp_client,m_tcp_monitor, m_udp, client, serverA, serverB, serverC;
+int m_tcp_client_fd,m_tcp_monitor_fd, m_udp_fd, new_tcp_client_fd, new_tcp_monitor_fd;
 
 // initialize tcp of the Main Server
 void init_ClientTCP(){
 
     // *** 1. CREATE SOCKET ***
-    if ( (M_TCPClient_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    if ( (m_tcp_client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         perror("Error creating TCP socket");
         exit(EXIT_FAILURE);
     }
     // specify AWS address
-    MAddrTCPClient.sin_family = AF_INET;
+    m_tcp_client.sin_family = AF_INET;
     //Server Tcp Port #
-    MAddrTCPClient.sin_port = htons(M_Client_TCP_PORT);
+    m_tcp_client.sin_port = htons(M_Client_TCP_PORT);
     //Server IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
-    MAddrTCPClient.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+    m_tcp_client.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
     // *** 2. BIND SOCKET ***
 
-    if (::bind(M_TCPClient_sockfd, (struct sockaddr *) &MAddrTCPClient, sizeof(MAddrTCPClient)) == -1 ){
-        close(M_TCPClient_sockfd);
+    if (::bind(m_tcp_client_fd, (struct sockaddr *) &m_tcp_client, sizeof(m_tcp_client)) == -1 ){
+        close(m_tcp_client_fd);
         perror("Error binding TCP socket");
         exit(EXIT_FAILURE);
     }
     // *** 3. LISTEN FOR CONNECTIONS ***
 
-    if (listen(M_TCPClient_sockfd, BACKLOG) < 0){
+    if (listen(m_tcp_client_fd, BACKLOG) < 0){
         perror("listen");
         exit(EXIT_FAILURE);
     }
@@ -70,32 +70,69 @@ void init_ClientTCP(){
 void init_MonitorTCP(){
 
     // *** 1. CREATE SOCKET ***
-    if ( (M_TCPMonitor_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+    if ( (m_tcp_monitor_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         perror("Error creating TCP socket");
         exit(EXIT_FAILURE);
     }
     // specify Server address
-    MAddrTCPMonitor.sin_family = AF_INET;
+    m_tcp_monitor.sin_family = AF_INET;
     //Server Tcp Port #
-    MAddrTCPMonitor.sin_port = htons(M_Monitor_TCP_PORT);
+    m_tcp_monitor.sin_port = htons(M_Monitor_TCP_PORT);
     //Server IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
-    MAddrTCPMonitor.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+    m_tcp_monitor.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
     // *** 2. BIND SOCKET ***
 
-    if (::bind(M_TCPClient_sockfd, (struct sockaddr *) &MAddrTCPClient, sizeof(MAddrTCPClient)) == -1 ){
-        close(M_TCPClient_sockfd);
+    if (::bind(m_tcp_monitor_fd, (struct sockaddr *) &m_tcp_monitor, sizeof(m_tcp_monitor)) == -1 ){
+        close(m_tcp_monitor_fd);
         perror("Error binding TCP socket");
         exit(EXIT_FAILURE);
     }
     // *** 3. LISTEN FOR CONNECTIONS ***
 
-    if (listen(M_TCPClient_sockfd, BACKLOG) < 0){
+    if (listen(m_tcp_monitor_fd, BACKLOG) < 0){
         perror("listen");
+        exit(EXIT_FAILURE);
+    }
+}
+void init_UDP(){
+    // *** 1. CREATE SOCKET ***
+    if ( (m_udp_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){
+        perror("Error creating UDP socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // specify AWS address
+
+    m_udp.sin_family = AF_INET;
+    //AWS Port #
+    m_udp.sin_port = htons(M_UDP_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+
+    // *** 2. BIND SOCKET ***
+
+    if (::bind(m_udp_fd, (struct sockaddr *) &m_udp, sizeof(m_udp)) == -1 ){
+        close(m_udp_fd);
+        perror("Error binding UDP socket");
+        exit(EXIT_FAILURE);
+    }
+    //note: udp does not have listen
+}
+
+void acceptFromClient(){
+    //clientlen from CMU class notes
+    socklen_t clientLen = sizeof(client);
+    //int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+    if ( (new_tcp_client_fd = accept(aws_TCP_sockfd,(struct sockaddr *) &clientAddr, &clientLen)) == -1){
+        perror("Error accepting socket");
         exit(EXIT_FAILURE);
     }
 }
 
 int main(){
-    void init_TCP();
+    init_ClientTCP();
+    init_MonitorTCP();
+    init_UDP();
+
 }
