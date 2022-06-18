@@ -62,6 +62,48 @@ void sendCheckInfo(char *name){
         close(client_sockfd);
         exit(EXIT_FAILURE);
     }
+
+    // get dynamic client port number
+    int client_portNum;
+    socklen_t len = sizeof(client);
+    if (getsockname(m_tcp_sockfd, (struct sockaddr *)&client, &len) == -1){
+        perror("Error getting client port number");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    else
+        client_portNum = ntohs(client.sin_port);
+    cout << name << " sent a balance enquiry request to the main server." << endl;
+}
+
+void sendTransaction(char *sender, char *receiver, char *amount){
+    if (send(m_tcp_sockfd, sender, strlen(sender), 0) == -1){
+        perror("Error sending data to server socket");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    if (send(m_tcp_sockfd, receiver, strlen(receiver), 0) == -1){
+        perror("Error sending data to server socket");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    if (send(m_tcp_sockfd, amount, strlen(amount), 0) == -1){
+        perror("Error sending data to server socket");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    // get dynamic client port number
+    int client_portNum;
+    socklen_t len = sizeof(client);
+    if (getsockname(m_tcp_sockfd, (struct sockaddr *)&client, &len) == -1){
+        perror("Error getting client port number");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    else
+        client_portNum = ntohs(client.sin_port);
+    cout <<sender << " has requested to transfer "<<amount<< " txcoins to "<< receiver << endl;
+
 }
 
 void recvFromM(){
@@ -69,9 +111,19 @@ void recvFromM(){
 }
 
 int main(int argc, char * argv[]){
-    init_TCP();
-    if(argc == 1){
-        sendCheckInfo(argv[0]);
+    if(argc != 2 and argc != 4){
+        cout << "Please check the input format: " << endl;
+        exit(EXIT_FAILURE);
     }
+    init_TCP();
+    if(argc == 2){
+
+    }
+
+    cout << "The client is up and running." << endl;
+
+    sendCheckInfo(argv[1]);
+    cout<<"send succ"<<endl;
+
     return 0;
 }

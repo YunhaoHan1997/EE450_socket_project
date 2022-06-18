@@ -28,7 +28,7 @@ using namespace std;
 #define BUFLEN 1024
 
 
-char *name1;
+char name1[BUFLEN];
 int recvLen1;
 
 struct transaction{
@@ -146,10 +146,26 @@ void acceptFromMonitor(){
 
 void recvFromClient(){
     recvLen1 = recv(new_tcp_client_fd, name1, BUFLEN, 0);
+    if (recvLen1 == -1){
+        perror("Error receiving message from client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    name1[recvLen1] = '\0';
 }
 int main(){
     init_ClientTCP();
     init_MonitorTCP();
+    cout << "The MServer is up and running." << endl;
     init_UDP();
+    while(1){
+        acceptFromClient();
+        cout << "acceptFromClient succ"<<endl;
+        recvFromClient();
+        cout << "recevfrom client succ"<<endl;
+        cout << name1 << endl;
+        close(new_tcp_client_fd);
+        close(new_tcp_monitor_fd);
+    }
 
 }
