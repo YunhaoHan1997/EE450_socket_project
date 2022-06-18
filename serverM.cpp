@@ -25,7 +25,11 @@ using namespace std;
 #define MAXDATASIZE 1024 // max number of bytes we can get at once
 #define BACKLOG 10 // max number of connections allowed on the incoming queue
 #define FAIL -1
+#define BUFLEN 1024
 
+
+char *name1;
+int recvLen1;
 
 struct transaction{
     string id;
@@ -35,7 +39,8 @@ struct transaction{
 vector<transaction> transactions;
 map<string, int> wallets;
 
-struct sockaddr_in m_tcp_client,m_tcp_monitor, m_udp, client, serverA, serverB, serverC;
+
+struct sockaddr_in m_tcp_client,m_tcp_monitor, m_udp, client,monitor, serverA, serverB, serverC;
 int m_tcp_client_fd,m_tcp_monitor_fd, m_udp_fd, new_tcp_client_fd, new_tcp_monitor_fd;
 
 // initialize tcp of the Main Server
@@ -124,12 +129,24 @@ void acceptFromClient(){
     //clientlen from CMU class notes
     socklen_t clientLen = sizeof(client);
     //int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-    if ( (new_tcp_client_fd = accept(aws_TCP_sockfd,(struct sockaddr *) &clientAddr, &clientLen)) == -1){
+    if ( (new_tcp_client_fd = accept(m_tcp_client_fd,(struct sockaddr *) &m_tcp_client, &clientLen)) == -1){
         perror("Error accepting socket");
         exit(EXIT_FAILURE);
     }
 }
 
+void acceptFromMonitor(){
+    socklen_t clientLen = sizeof(monitor);
+    //int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+    if ( (new_tcp_monitor_fd = accept(m_tcp_monitor_fd,(struct sockaddr *) &m_tcp_monitor, &clientLen)) == -1){
+        perror("Error accepting socket");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void recvFromClient(){
+    recvLen1 = recv(new_tcp_client_fd, name1, BUFLEN, 0);
+}
 int main(){
     init_ClientTCP();
     init_MonitorTCP();

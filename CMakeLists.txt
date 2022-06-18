@@ -4,4 +4,4 @@ project(project)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(project
-        serverM.cpp)
+        serverM.cpp client.cpp)
