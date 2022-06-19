@@ -145,6 +145,37 @@ build test: CXX_EXECUTABLE_LINKER__test_Debug CMakeFiles/test.dir/test.cpp.o
   TARGET_FILE = test
   TARGET_PDB = test.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target serverA
+
+
+#############################################
+# Order-only phony target for serverA
+
+build cmake_object_order_depends_target_serverA: phony || CMakeFiles/serverA.dir
+
+build CMakeFiles/serverA.dir/serverA.cpp.o: CXX_COMPILER__serverA_Debug /Users/yunhao/Downloads/usc课程/EE450/project/serverA.cpp || cmake_object_order_depends_target_serverA
+  DEP_FILE = CMakeFiles/serverA.dir/serverA.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
+  OBJECT_DIR = CMakeFiles/serverA.dir
+  OBJECT_FILE_DIR = CMakeFiles/serverA.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target serverA
+
+
+#############################################
+# Link the executable serverA
+
+build serverA: CXX_EXECUTABLE_LINKER__serverA_Debug CMakeFiles/serverA.dir/serverA.cpp.o
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
+  OBJECT_DIR = CMakeFiles/serverA.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = serverA
+  TARGET_PDB = serverA.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -179,7 +210,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug
 
-build all: phony client serverM test
+build all: phony client serverM test serverA
 
 # =============================================================================
 # Built-in targets

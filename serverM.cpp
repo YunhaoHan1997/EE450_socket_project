@@ -195,6 +195,7 @@ void setServerABC(){
     serverC.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 }
 
+// todo: receive from server ABC
 void receiveABC(){
 
 }

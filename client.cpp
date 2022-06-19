@@ -108,6 +108,7 @@ void sendTransaction(char *sender, char *receiver, char *amount){
 
 }
 
+// todo: receive from M
 void recvFromM(){
 
 }
