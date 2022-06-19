@@ -181,6 +181,18 @@ void setServerABC(){
     serverA.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
 //    Server B
+    serverB.sin_family = AF_INET;
+    //AWS Port #
+    serverB.sin_port = htons(ServerB_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    serverB.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+
+    // Server c
+    serverC.sin_family = AF_INET;
+    //AWS Port #
+    serverC.sin_port = htons(ServerC_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    serverC.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 }
 
 void receiveABC(){
