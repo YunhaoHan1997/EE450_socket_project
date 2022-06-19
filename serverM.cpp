@@ -29,6 +29,8 @@ using namespace std;
 
 
 char name1[BUFLEN];
+char name2[BUFLEN];
+char transaction_amount[BUFLEN];
 int recvLen1;
 
 struct transaction{
@@ -152,7 +154,39 @@ void recvFromClient(){
         exit(EXIT_FAILURE);
     }
     name1[recvLen1] = '\0';
+
+    recvLen1 = recv(new_tcp_client_fd, name2, BUFLEN, 0);
+    if (recvLen1 == -1){
+        perror("Error receiving message from client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    name2[recvLen1] = '\0';
+
+    recvLen1 = recv(new_tcp_client_fd, transaction_amount, BUFLEN, 0);
+    if (recvLen1 == -1){
+        perror("Error receiving message from client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    transaction_amount[recvLen1] = '\0';
 }
+
+void setServerABC(){
+//    Server A
+    serverA.sin_family = AF_INET;
+    //AWS Port #
+    serverA.sin_port = htons(ServerA_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    serverA.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+
+//    Server B
+}
+
+void receiveABC(){
+
+}
+
 int main(){
     init_ClientTCP();
     init_MonitorTCP();
@@ -164,6 +198,9 @@ int main(){
         recvFromClient();
         cout << "recevfrom client succ"<<endl;
         cout << name1 << endl;
+        cout << name2 << endl;
+        cout << transaction_amount << endl;
+
         close(new_tcp_client_fd);
         close(new_tcp_monitor_fd);
     }

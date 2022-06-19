@@ -82,11 +82,13 @@ void sendTransaction(char *sender, char *receiver, char *amount){
         close(client_sockfd);
         exit(EXIT_FAILURE);
     }
+    for (int i = 0; i < 10000000; i++){}
     if (send(m_tcp_sockfd, receiver, strlen(receiver), 0) == -1){
         perror("Error sending data to server socket");
         close(client_sockfd);
         exit(EXIT_FAILURE);
     }
+    for (int i = 0; i < 10000000; i++){}
     if (send(m_tcp_sockfd, amount, strlen(amount), 0) == -1){
         perror("Error sending data to server socket");
         close(client_sockfd);
@@ -112,17 +114,44 @@ void recvFromM(){
 
 int main(int argc, char * argv[]){
     if(argc != 2 and argc != 4){
-        cout << "Please check the input format: " << endl;
+        cout << "Please check the input format" << endl;
         exit(EXIT_FAILURE);
     }
-    init_TCP();
-    if(argc == 2){
 
+    init_TCP();
+
+    if(argc == 2){
+        // check if Username is letter
+        if (!isalpha(*argv[1])){
+            cout << "Username must be a letter" << endl;
+            exit(EXIT_FAILURE);
+        }
+        sendCheckInfo(argv[1]);
+    }
+
+    if(argc == 4){
+        // check if Username is letter
+        if (!isalpha(*argv[1])){
+            cout << "Sender must be a letter" << endl;
+            exit(EXIT_FAILURE);
+        }
+        // check if Username is letter
+        if (!isalpha(*argv[2])){
+            cout << "Receiver must be a letter" << endl;
+            exit(EXIT_FAILURE);
+        }
+        // check if transaction amount is digit
+        if (!isdigit(*argv[3])){
+            cout << "Transaction amount must be a letter" << endl;
+            exit(EXIT_FAILURE);
+        }
+
+        sendTransaction(argv[1], argv[2], argv[3]);
     }
 
     cout << "The client is up and running." << endl;
 
-    sendCheckInfo(argv[1]);
+
     cout<<"send succ"<<endl;
 
     return 0;
