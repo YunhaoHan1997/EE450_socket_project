@@ -18,12 +18,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA coding">
-      <change afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/serverM" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +60,8 @@
     "WebServerToolWindowFactoryState": "false",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "last_opened_file_path": "/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug"
+    "last_opened_file_path": "/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug",
+    "settings.editor.selected.configurable": "preferences.keymap"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -71,9 +70,9 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.serverA">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="client">
@@ -114,6 +113,7 @@
       <workItem from="1655366400746" duration="13863000" />
       <workItem from="1655450341728" duration="17285000" />
       <workItem from="1655660444189" duration="18079000" />
+      <workItem from="1656638467719" duration="1350000" />
     </task>
     <task id="LOCAL-00001" summary="serverM coding...">
       <created>1655434516754</created>
@@ -164,7 +164,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655679478317</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="serverA coding">
+      <created>1656638480375</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1656638480375</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

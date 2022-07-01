@@ -163,30 +163,32 @@ void sendToM(){
 
     int sendLen;
     memset(flag, '\0', sizeof(flag));
+    cout << "begin send to M" << endl;
     for(transaction item: transactions){
         //send id
         if ( ( sendLen = sendto(serverA_sockfd, item.id.c_str(), strlen(item.id.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message1 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-
+        cout << "send id to M" << endl;
         //send name1
         if ( ( sendLen = sendto(serverA_sockfd, item.name1.c_str(), strlen(item.name1.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message2 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-
+        cout << "send name1 to M" << endl;
         // send name2
         if ( ( sendLen = sendto(serverA_sockfd, item.name2.c_str(), strlen(item.name2.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message3 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-
+        cout << "send name2 to M" << endl;
         //send amount
         if ( ( sendLen = sendto(serverA_sockfd, item.amount.c_str(), strlen(item.amount.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message4 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
+        cout << "send amount to M" << endl;
     }
 
     // Send NULL char to signify end of communication
