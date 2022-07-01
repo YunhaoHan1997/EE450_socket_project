@@ -152,20 +152,60 @@ void recvFromM(){
         exit(EXIT_FAILURE);
     }
 
-
+    cout << "serverA receive from M succ" << endl;
 
 //    cout << "The Server A has received input for finding shortest paths: starting vertex " << recvVertexIndex << " of map " << recvMapID << "." << endl;
 }
 
 //todo: send to M
 void sendToM(){
-    char send_id[BUFLEN];
-    char send_name1[BUFLEN];
-    char send_name2[BUFLEN];
-    char send_amount[BUFLEN];
+    char flag[BUFLEN];
 
+    int sendLen;
+    memset(flag, '\0', sizeof(flag));
+    for(transaction item: transactions){
+        //send id
+        if ( ( sendLen = sendto(serverA_sockfd, item.id.c_str(), strlen(item.id.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+            perror("Error sending UDP message1 to MServer from Server A");
+            exit(EXIT_FAILURE);
+        }
+
+        //send name1
+        if ( ( sendLen = sendto(serverA_sockfd, item.name1.c_str(), strlen(item.name1.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+            perror("Error sending UDP message2 to MServer from Server A");
+            exit(EXIT_FAILURE);
+        }
+
+        // send name2
+        if ( ( sendLen = sendto(serverA_sockfd, item.name2.c_str(), strlen(item.name2.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+            perror("Error sending UDP message3 to MServer from Server A");
+            exit(EXIT_FAILURE);
+        }
+
+        //send amount
+        if ( ( sendLen = sendto(serverA_sockfd, item.amount.c_str(), strlen(item.amount.c_str()), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+            perror("Error sending UDP message4 to MServer from Server A");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Send NULL char to signify end of communication
+    //todo here has error
+//    memset(flag, '\0', sizeof(flag));
+//    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+//        perror("Error sending UDP message5 to MServer from Server A");
+//        exit(EXIT_FAILURE);
+//    }
 }
 
 int main(){
+    init_UDP();
+    cout << "init udp succ" << endl;
     constructTransactions();
+    cout << "transacitons succe" <<endl;
+    while(1){
+        recvFromM();
+        sendToM();
+    }
+
 }
