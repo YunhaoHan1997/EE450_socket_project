@@ -17,14 +17,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA coding">
+    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA can work now">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/block1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/block1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverM" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/serverM" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +40,9 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/socket.h" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -64,7 +70,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "last_opened_file_path": "/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug",
-    "settings.editor.selected.configurable": "preferences.keymap"
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -72,7 +78,7 @@
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.serverA">
+  <component name="RunManager" selected="CMake Application.serverM">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -116,7 +122,7 @@
       <workItem from="1655366400746" duration="13863000" />
       <workItem from="1655450341728" duration="17285000" />
       <workItem from="1655660444189" duration="18079000" />
-      <workItem from="1656638467719" duration="6079000" />
+      <workItem from="1656638467719" duration="9836000" />
     </task>
     <task id="LOCAL-00001" summary="serverM coding...">
       <created>1655434516754</created>
@@ -181,7 +187,14 @@
       <option name="project" value="LOCAL" />
       <updated>1656657919407</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="serverA can work now">
+      <created>1656696473675</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1656696473675</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,6 +216,11 @@
     <MESSAGE value="serverM coding..." />
     <MESSAGE value="serverM and client coding..." />
     <MESSAGE value="serverA coding" />
-    <option name="LAST_COMMIT_MESSAGE" value="serverA coding" />
+    <MESSAGE value="serverA can work now" />
+    <option name="LAST_COMMIT_MESSAGE" value="serverA can work now" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -239,19 +239,22 @@ void receiveFromA(){
     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
 
     socklen_t serverALen = sizeof(serverA);
-    cout << "receive from server A start" << endl;
     while(! recvDone){
 
         struct transaction temp;
-        cout << "receive id server A start" << endl;
         if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
             perror("Error receiving message from Server A");
             close(new_tcp_client_fd);
             exit(EXIT_FAILURE);
         }
         recv_id[recvLen1] = '\0';
+//        if(recvLen1 == 0){
+//
+//            break;
+//        }
+        cout << "receive len from id is: " << recvLen1<< endl;
         temp.id = string(recv_id);
-        cout << "receive id server A" << endl;
+        cout << "receive id from server A is" << temp.id<< endl;
 
         if (recv_id[0] != '\0'){
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
@@ -261,7 +264,7 @@ void receiveFromA(){
             }
             recv_name1[recvLen1] = '\0';
             temp.from = string(recv_name1);
-            cout << "receive name1 server A" << endl;
+            cout << "receive name1 from server A is" <<temp.from<< endl;
 
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
                 perror("Error receiving message from Server A");
@@ -270,7 +273,7 @@ void receiveFromA(){
             }
             recv_name2[recvLen1] = '\0';
             temp.to = string(recv_name2);
-            cout << "receive name2 server A" << endl;
+            cout << "receive name2 from server A is" << temp.to<< endl;
 
             //receive amount
             if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
@@ -280,11 +283,13 @@ void receiveFromA(){
             }
             recv_amount[recvLen1] = '\0';
             temp.amount = string(recv_amount);
-            cout << "receive amount server A" << endl;
+            cout << "receive amount from server A is"<< temp.amount << endl;
             transactions.push_back(temp);
         }else{
             //toggle recvDone
             recvDone = 1;
+            cout<<"receive done"<<endl;
+
         }
     }
 
@@ -317,9 +322,8 @@ int main(){
 //        close(new_tcp_monitor_fd);
         sendToA();
         receiveFromA();
-        for(auto &i : transactions){
-            cout << i.id << i.from << i.to << i.amount <<endl;
-        }
+
     }
+
 
 }

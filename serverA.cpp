@@ -174,12 +174,10 @@ void sendToM(){
     memset(flag, '\0', sizeof(flag));
     cout << "begin send to M" << endl;
     for(const transaction& item: transactions){
-        cout << 111<<endl;
         sprintf(idBuf, "%s",item.id.c_str());
         sprintf(name1Buf, "%s", item.name1.c_str());
         sprintf(name2Buf, "%s", item.name2.c_str());
         sprintf(amountBuf, "%s", item.amount.c_str());
-        cout << 222<<endl;
         //send id
         if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message1 to MServer from Server A");
@@ -219,11 +217,11 @@ void sendToM(){
 
     // Send NULL char to signify end of communication
     //todo here has error
-//    memset(flag, '\0', sizeof(flag));
-//    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
-//        perror("Error sending UDP message5 to MServer from Server A");
-//        exit(EXIT_FAILURE);
-//    }
+    memset(flag, '\0', sizeof(flag));
+    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message5 to MServer from Server A");
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(){
