@@ -21,6 +21,7 @@
 using namespace std;
 #define LOCAL_HOST "127.0.0.1" // Host address
 #define ServerA_PORT 21161
+#define ServerM_PORT 24161
 #define BUFLEN 1000 // Length of socket stream buffer
 
 char recv_id[BUFLEN];
@@ -127,32 +128,32 @@ void addTransaction(string &id, string &name1, string &name2, string &amount){
 }
 
 void recvFromM(){
-    socklen_t awsLen = sizeof(m_udp);
+    socklen_t m_len = sizeof(m_udp);
     cout<<"begin receive"<<endl;
     //    recv trans ID
 
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){
+    if ((recvLen1 = recvfrom(serverA_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
     cout<<"receive id"<<endl;
 
     //    recv name1
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){
+    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
     cout<<"receive name1"<<endl;
 
     //recv name2
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){
+    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
     cout<<"receive name2"<<endl;
 
     //recv amount
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){
+    if ((recvLen1 = recvfrom(serverA_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
@@ -174,12 +175,10 @@ void sendToM(){
     memset(flag, '\0', sizeof(flag));
     cout << "begin send to M" << endl;
     for(const transaction& item: transactions){
-        cout << 111<<endl;
         sprintf(idBuf, "%s",item.id.c_str());
         sprintf(name1Buf, "%s", item.name1.c_str());
         sprintf(name2Buf, "%s", item.name2.c_str());
         sprintf(amountBuf, "%s", item.amount.c_str());
-        cout << 222<<endl;
         //send id
         if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message1 to MServer from Server A");
@@ -219,11 +218,11 @@ void sendToM(){
 
     // Send NULL char to signify end of communication
     //todo here has error
-//    memset(flag, '\0', sizeof(flag));
-//    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
-//        perror("Error sending UDP message5 to MServer from Server A");
-//        exit(EXIT_FAILURE);
-//    }
+    memset(flag, '\0', sizeof(flag));
+    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message5 to MServer from Server A");
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(){
@@ -231,10 +230,17 @@ int main(){
     cout << "init udp succ" << endl;
     constructTransactions();
     cout << "The size of transactions is: " <<transactions.size()<<endl;
+//    recvFromM();
+    m_udp.sin_family = AF_INET;
+    //AWS Port #
+    m_udp.sin_port = htons(ServerM_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+    sendToM();
 //    cout << "transacitons succe" <<endl;
-    while(1){
-        recvFromM();
-        sendToM();
-    }
+//    while(1){
+//        recvFromM();
+//        sendToM();
+//    }
 
 }

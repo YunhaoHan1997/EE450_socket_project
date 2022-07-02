@@ -204,7 +204,11 @@ void sendToA(){
     char b[] = "abc";
     char c[] = "abc";
     char d[] = "abc";
-
+    m_udp.sin_family = AF_INET;
+    //AWS Port #
+    m_udp.sin_port = htons(ServerA_PORT);
+    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
     if ((sendLen = sendto(m_udp_fd, a, strlen(a), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
@@ -229,6 +233,7 @@ void sendToA(){
 
     cout << "M send to ServerA succ" << endl;
 }
+
 // todo: receive from server ABC
 void receiveFromA(){
 
@@ -237,7 +242,6 @@ void receiveFromA(){
     char recv_name2[BUFLEN];
     char recv_amount[BUFLEN];
     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
-
     socklen_t serverALen = sizeof(serverA);
     cout << "receive from server A start" << endl;
     while(! recvDone){
@@ -297,14 +301,18 @@ int main(){
     cout << "The MServer is up and running." << endl;
     init_UDP();
 
-    setServerABC();
+//    setServerABC();
 
 
 
 //    close(new_tcp_client_fd);
 //    close(new_tcp_monitor_fd);
-
-    while(1){
+//    sendToA();
+    receiveFromA();
+//    for(auto &i : transactions){
+//        cout << i.id << i.from << i.to << i.amount <<endl;
+//    }
+//    while(1){
 //        acceptFromClient();
 //        cout << "acceptFromClient succ"<<endl;
 //        recvFromClient();
@@ -315,11 +323,13 @@ int main(){
 //
 //        close(new_tcp_client_fd);
 //        close(new_tcp_monitor_fd);
-        sendToA();
-        receiveFromA();
-        for(auto &i : transactions){
-            cout << i.id << i.from << i.to << i.amount <<endl;
-        }
-    }
+//        sendToA();
+//        receiveFromA();
+//        for(auto &i : transactions){
+//            cout << i.id << i.from << i.to << i.amount <<endl;
+//        }
+//    }
+//    sendToA();
+
 
 }
