@@ -1,0 +1,29 @@
+<changelist name="Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]" date="1656707442339" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 7/1/22, 1:30 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="cmake-build-debug/.ninja_deps" />
+    <option name="AFTER_PATH" value="cmake-build-debug/.ninja_deps" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/.ninja_deps" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" />
+    <option name="AFTER_PATH" value="cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/serverM.cpp.o" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="serverM" />
+    <option name="AFTER_PATH" value="serverM" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/serverM" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="serverA" />
+    <option name="AFTER_PATH" value="serverA" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/serverA" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="cmake-build-debug/serverM" />
+    <option name="AFTER_PATH" value="cmake-build-debug/serverM" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_1_22,_1_30_PM_[Changes]/serverM1" />
+  </binary>
+</changelist>
