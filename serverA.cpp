@@ -24,10 +24,7 @@ using namespace std;
 #define ServerM_PORT 24161
 #define BUFLEN 1000 // Length of socket stream buffer
 
-char recv_id[BUFLEN];
-char recv_name1[BUFLEN];
-char recv_name2[BUFLEN];
-char recv_amount[BUFLEN];
+
 int recvLen1;
 
 struct transaction{
@@ -118,7 +115,7 @@ void constructTransactions(){
     }
 }
 
-void addTransaction(string &id, string &name1, string &name2, string &amount){
+void addTransaction(string id, string name1, string name2, string amount){
     transactions.push_back(transaction{id, name1, name2, amount});
     ofstream write;
     write.open("block1.txt",ios::app);
@@ -128,6 +125,11 @@ void addTransaction(string &id, string &name1, string &name2, string &amount){
 }
 
 void recvFromM(){
+    char recv_id[BUFLEN];
+    char recv_name1[BUFLEN];
+    char recv_name2[BUFLEN];
+    char recv_amount[BUFLEN];
+
     socklen_t m_len = sizeof(m_udp);
     cout<<"begin receive"<<endl;
     //    recv trans ID
@@ -136,6 +138,7 @@ void recvFromM(){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
+    recv_id[recvLen1] = '\0';
     cout<<"receive id"<<endl;
 
     //    recv name1
@@ -144,12 +147,14 @@ void recvFromM(){
         exit(EXIT_FAILURE);
     }
     cout<<"receive name1"<<endl;
+    recv_name1[recvLen1] = '\0';
 
     //recv name2
     if ((recvLen1 = recvfrom(serverA_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
+    recv_name2[recvLen1] = '\0';
     cout<<"receive name2"<<endl;
 
     //recv amount
@@ -157,7 +162,10 @@ void recvFromM(){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
+    recv_amount[recvLen1] = '\0';
     cout<<"receive amount"<<endl;
+
+    addTransaction(string(recv_id),string(recv_name1),string(recv_name2),string(recv_amount));
 
 //    cout << "serverA receive from M succ" << endl;
 
@@ -217,12 +225,19 @@ void sendToM(){
     }
 
     // Send NULL char to signify end of communication
-    //todo here has error
     memset(flag, '\0', sizeof(flag));
     if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message5 to MServer from Server A");
         exit(EXIT_FAILURE);
     }
+}
+
+void setM(){
+    m_udp.sin_family = AF_INET;
+    //M Port #
+    m_udp.sin_port = htons(ServerM_PORT);
+    //M IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
+    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 }
 
 int main(){
@@ -231,16 +246,12 @@ int main(){
     constructTransactions();
     cout << "The size of transactions is: " <<transactions.size()<<endl;
 //    recvFromM();
-    m_udp.sin_family = AF_INET;
-    //AWS Port #
-    m_udp.sin_port = htons(ServerM_PORT);
-    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
-    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+    // in udp, if we want to send, we first set
+    setM();
     sendToM();
-//    cout << "transacitons succe" <<endl;
-//    while(1){
-//        recvFromM();
-//        sendToM();
-//    }
+//    recvFromM();
+    while(1){
+        recvFromM();
+    }
 
 }

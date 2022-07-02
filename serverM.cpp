@@ -26,6 +26,7 @@ using namespace std;
 #define BACKLOG 10 // max number of connections allowed on the incoming queue
 #define FAIL -1
 #define BUFLEN 1024
+#define MAX_NUM_OF_TRANSACTIONS_BIT 5
 
 char id[BUFLEN];
 char name1[BUFLEN];
@@ -199,33 +200,28 @@ void setServerABC(){
     cout << "set ABC succ" <<endl;
 }
 
-void sendToA(){
-    char a[] = "abc";
-    char b[] = "abc";
-    char c[] = "abc";
-    char d[] = "abc";
-    m_udp.sin_family = AF_INET;
-    //AWS Port #
-    m_udp.sin_port = htons(ServerA_PORT);
-    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
-    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+void sendToA(char *id, char *from, char *to, char *amount){
+//    char a[] = "abc";
+//    char b[] = "abc";
+//    char c[] = "abc";
+//    char d[] = "abc";
 
-    if ((sendLen = sendto(m_udp_fd, a, strlen(a), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
+    if ((sendLen = sendto(m_udp_fd, id, strlen(id), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
     }
-    if ((sendLen = sendto(m_udp_fd, b, strlen(b), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
+    if ((sendLen = sendto(m_udp_fd, from, strlen(from), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
     }
-    if ((sendLen = sendto(m_udp_fd, c, strlen(c), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
+    if ((sendLen = sendto(m_udp_fd, to, strlen(to), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
     }
-    if ((sendLen = sendto(m_udp_fd, d, strlen(d), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
+    if ((sendLen = sendto(m_udp_fd, amount, strlen(amount), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
@@ -296,39 +292,36 @@ void receiveFromA(){
 }
 
 int main(){
-//    init_ClientTCP();
-//    init_MonitorTCP();
+    init_ClientTCP();
+    init_MonitorTCP();
     cout << "The MServer is up and running." << endl;
     init_UDP();
 
-//    setServerABC();
 
-
-
-//    close(new_tcp_client_fd);
-//    close(new_tcp_monitor_fd);
-//    sendToA();
     receiveFromA();
+//    sendToA();
 //    for(auto &i : transactions){
 //        cout << i.id << i.from << i.to << i.amount <<endl;
 //    }
-//    while(1){
-//        acceptFromClient();
-//        cout << "acceptFromClient succ"<<endl;
-//        recvFromClient();
-//        cout << "recevfrom client succ"<<endl;
-//        cout << name1 << endl;
-//        cout << name2 << endl;
-//        cout << transaction_amount << endl;
-//
-//        close(new_tcp_client_fd);
-//        close(new_tcp_monitor_fd);
-//        sendToA();
-//        receiveFromA();
-//        for(auto &i : transactions){
-//            cout << i.id << i.from << i.to << i.amount <<endl;
-//        }
-//    }
+    while(1){
+        acceptFromClient();
+        cout << "acceptFromClient succ"<<endl;
+        recvFromClient();
+        cout << "recevfrom client succ"<<endl;
+        cout << name1 << endl;
+        cout << name2 << endl;
+        cout << transaction_amount << endl;
+
+        // that means transaction
+        if((name2[0] != '\0')){
+            char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
+            sprintf(now_id, "%lu", transactions.size());
+            sendToA(now_id,name1,name2,transaction_amount);
+        }
+        close(new_tcp_client_fd);
+        close(new_tcp_monitor_fd);
+
+    }
 //    sendToA();
 
 
