@@ -291,6 +291,69 @@ void receiveFromA(){
     cout << "receive from server A succ" << endl;
 }
 
+void build_wallets(vector<transaction> transactions){
+    for(auto transaction: transactions){
+        if(wallets.find(transaction.from) != wallets.end()){
+            wallets.insert({transaction.from, 1000});
+        }
+        if(wallets.find(transaction.to) != wallets.end()){
+            wallets.insert({transaction.to, 1000});
+        }
+    }
+
+    for(auto transaction: transactions){
+        auto it1 = wallets.find(transaction.from);
+        it1->second -= stoi(transaction.amount);
+        auto it2 = wallets.find(transaction.to);
+        it2->second += stoi(transaction.amount);
+    }
+}
+
+// todo: send wallets to client
+void sendWalletsToClient(map<string, int> wallets){
+    char name[BUFLEN];
+    char money[BUFLEN];
+    char flag[BUFLEN];
+    for(auto wallet: wallets){
+        for(int i = 0; i < 10000000; i++){}
+        // send name
+        sprintf(name, "%s", wallet.first.c_str());
+        if(send(new_tcp_client_fd, name, strlen(name), 0) == -1){
+            perror("Error sending data to client");
+            close(new_tcp_client_fd);
+            exit(EXIT_FAILURE);
+        }
+
+        //send money
+        for(int i = 0; i < 10000000; i++){}
+        sprintf(money, "%d", wallet.second);
+        if(send(new_tcp_client_fd, money, strlen(money), 0) == -1){
+            perror("Error sending data to client");
+            close(new_tcp_client_fd);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    // Send NULL char to signify end of communication
+    for(int i = 0; i < 10000000; i++){}
+    memset(flag, '\0', sizeof(flag));
+    if (send(new_tcp_client_fd, flag, strlen(flag), 0) == -1) {
+        perror("Error sending data to client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void sendMsgToClient(int msg){
+    char flag[BUFLEN];
+    sprintf(flag,"%d", msg);
+    if (send(new_tcp_client_fd, flag, strlen(flag), 0) == -1) {
+        perror("Error sending data to client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+}
+
 int main(){
     init_ClientTCP();
     init_MonitorTCP();
@@ -303,6 +366,7 @@ int main(){
 //    for(auto &i : transactions){
 //        cout << i.id << i.from << i.to << i.amount <<endl;
 //    }
+
     while(1){
         acceptFromClient();
         cout << "acceptFromClient succ"<<endl;
@@ -312,10 +376,12 @@ int main(){
         cout << name2 << endl;
         cout << transaction_amount << endl;
 
-        // that means transaction
+        // that means client want to transact
         if((name2[0] != '\0')){
+
             char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
-            sprintf(now_id, "%lu", transactions.size());
+            // convert id int to char[]
+            sprintf(now_id, "%lu", transactions.size() + 1);
             sendToA(now_id,name1,name2,transaction_amount);
         }
         close(new_tcp_client_fd);

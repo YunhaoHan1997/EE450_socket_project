@@ -20,16 +20,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="Firstly start serverM succ">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverA.dir/serverA.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverA.dir/serverA.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverA" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverM" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/serverM" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -138,7 +128,7 @@
       <workItem from="1655366400746" duration="13863000" />
       <workItem from="1655450341728" duration="17285000" />
       <workItem from="1655660444189" duration="18079000" />
-      <workItem from="1656638467719" duration="33472000" />
+      <workItem from="1656638467719" duration="38835000" />
     </task>
     <task id="LOCAL-00001" summary="serverM coding...">
       <created>1655434516754</created>
@@ -231,7 +221,14 @@
       <option name="project" value="LOCAL" />
       <updated>1656727576062</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Firstly start serverM succ">
+      <created>1656746169436</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1656746169436</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
