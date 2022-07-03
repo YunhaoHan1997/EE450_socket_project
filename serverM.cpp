@@ -291,57 +291,75 @@ void receiveFromA(){
     cout << "receive from server A succ" << endl;
 }
 
-void build_wallets(vector<transaction> transactions){
+void build_wallets(){
+    //clean wallets
+    wallets.clear();
     for(auto transaction: transactions){
-        if(wallets.find(transaction.from) != wallets.end()){
+        if(wallets.find(transaction.from) == wallets.end()){
             wallets.insert({transaction.from, 1000});
+//            auto it1 = wallets.find(transaction.from);
+//            it1->second -= stoi(transaction.amount);
         }
-        if(wallets.find(transaction.to) != wallets.end()){
+        if(wallets.find(transaction.to) == wallets.end()){
             wallets.insert({transaction.to, 1000});
+//            auto it2 = wallets.find(transaction.to);
+//            it2->second += stoi(transaction.amount);
         }
     }
 
-    for(auto transaction: transactions){
+    for(const auto& transaction: transactions){
         auto it1 = wallets.find(transaction.from);
         it1->second -= stoi(transaction.amount);
+
         auto it2 = wallets.find(transaction.to);
         it2->second += stoi(transaction.amount);
+
     }
 }
 
 // todo: send wallets to client
-void sendWalletsToClient(map<string, int> wallets){
-    char name[BUFLEN];
+void sendWalletToClient(string target_name){
+
     char money[BUFLEN];
-    char flag[BUFLEN];
-    for(auto wallet: wallets){
-        for(int i = 0; i < 10000000; i++){}
-        // send name
-        sprintf(name, "%s", wallet.first.c_str());
-        if(send(new_tcp_client_fd, name, strlen(name), 0) == -1){
+
+//    for(auto wallet: wallets){
+//        for(int i = 0; i < 10000000; i++){}
+//        // send name
+////        sprintf(name, "%s", wallet.first.c_str());
+//        cout<<"start send name"<<endl;
+//        if(send(new_tcp_client_fd, wallet.first.c_str(), strlen(name), 0) == -1){
+//            perror("Error sending data to client");
+//            close(new_tcp_client_fd);
+//            exit(EXIT_FAILURE);
+//        }
+//        cout<<"send name to client succ"<<endl;
+//        //send money
+////        for(int i = 0; i < 10000000; i++){}
+//        sprintf(money, "%d", wallet.second);
+//        if(send(new_tcp_client_fd,money, strlen(money), 0) == -1){
+//            perror("Error sending data to client");
+//            close(new_tcp_client_fd);
+//            exit(EXIT_FAILURE);
+//        }
+//        cout<<"send money to client succ"<<endl;
+//    }
+//
+//    // Send NULL char to signify end of communication
+//    for(int i = 0; i < 10000000; i++){}
+//    memset(flag, '\0', sizeof(flag));
+//    if (send(new_tcp_client_fd, flag, strlen(flag), 0) == -1) {
+//        perror("Error sending data to client");
+//        close(new_tcp_client_fd);
+//        exit(EXIT_FAILURE);
+//    }
+    sprintf(money, "%d", wallets.find(target_name)->second);
+    if(send(new_tcp_client_fd, money, strlen(money), 0) == -1){
             perror("Error sending data to client");
             close(new_tcp_client_fd);
             exit(EXIT_FAILURE);
         }
 
-        //send money
-        for(int i = 0; i < 10000000; i++){}
-        sprintf(money, "%d", wallet.second);
-        if(send(new_tcp_client_fd, money, strlen(money), 0) == -1){
-            perror("Error sending data to client");
-            close(new_tcp_client_fd);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    // Send NULL char to signify end of communication
-    for(int i = 0; i < 10000000; i++){}
-    memset(flag, '\0', sizeof(flag));
-    if (send(new_tcp_client_fd, flag, strlen(flag), 0) == -1) {
-        perror("Error sending data to client");
-        close(new_tcp_client_fd);
-        exit(EXIT_FAILURE);
-    }
+    cout<<"send money succ"<<endl;
 }
 
 void sendMsgToClient(int msg){
@@ -352,6 +370,7 @@ void sendMsgToClient(int msg){
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
     }
+    cout<<"send msg suc"<<endl;
 }
 
 int main(){
@@ -363,9 +382,9 @@ int main(){
 
     receiveFromA();
 //    sendToA();
-//    for(auto &i : transactions){
-//        cout << i.id << i.from << i.to << i.amount <<endl;
-//    }
+    for(auto &i : transactions){
+        cout << i.id << i.from << i.to << i.amount <<endl;
+    }
 
     while(1){
         acceptFromClient();
@@ -382,7 +401,24 @@ int main(){
             char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
             // convert id int to char[]
             sprintf(now_id, "%lu", transactions.size() + 1);
-            sendToA(now_id,name1,name2,transaction_amount);
+
+            // check name if exist or not
+            // from name and to name both exist
+            build_wallets();
+            if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) != wallets.end()){
+                //1 means both from and to are in the wallets
+                sendMsgToClient(1);
+
+                transactions.push_back({to_string(transactions.size() + 1), string(name1), string(name2), string(transaction_amount)});
+                build_wallets();
+                for(int i = 0; i < 10000000; i++){}
+                sendWalletToClient(name1);
+                sendToA(now_id,name1,name2,transaction_amount);
+            }
+            // if either name is not exist, send 0 to client.
+            else{
+                sendMsgToClient((0));
+            }
         }
         close(new_tcp_client_fd);
         close(new_tcp_monitor_fd);

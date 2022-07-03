@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <ctype.h>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -27,6 +28,11 @@ int m_tcp_sockfd;
 
 struct sockaddr_in client;
 int client_sockfd;
+char msg[BUFLEN];
+char money[BUFLEN];
+int recvLen1;
+map<string, string> wallets;
+
 
 void init_TCP(){
     // *** CREATE SOCKET ***
@@ -108,9 +114,54 @@ void sendTransaction(char *sender, char *receiver, char *amount){
 
 }
 
-// todo: receive from M
-void recvFromM(){
+// todo: receive Msg from M
+void recvMsgFromM(){
+    if ( (recvLen1 = recv(m_tcp_sockfd, msg, BUFLEN, 0)) == -1){
+        perror("Error receiving message from AWS");
+        close(client_sockfd);
+        exit(EXIT_FAILURE);
+    }
+    msg[recvLen1] = '\0';
+    cout<<"recv msg: "<<msg[0]<<endl;
 
+}
+
+void recvMoneyFromM(){
+//    char name[BUFLEN];
+//    char money[BUFLEN];
+
+//    int recvDone = 0;// 0 = not finished receiving, 1 = finished receiving
+//    while(!recvDone){
+//        if ( (recvLen1 = recv(m_tcp_sockfd, name, BUFLEN, 0)) == -1){
+//            perror("Error receiving message from M");
+//            close(client_sockfd);
+//            exit(EXIT_FAILURE);
+//        }
+//        name[recvLen1] = '\0';
+//        cout<<"recv name succ"<<endl;
+//        if(name[0] != '\0'){
+//            if ( (recvLen1 = recv(m_tcp_sockfd, money, BUFLEN, 0)) == -1){
+//                perror("Error receiving message from M");
+//                close(client_sockfd);
+//                exit(EXIT_FAILURE);
+//            }
+//            money[recvLen1] = '\0';
+//            cout<<"recv money succ"<<endl;
+//            //add name and money to wallets
+//            wallets.insert({string (name),string(money)});
+//
+//        }
+//        else{
+//            recvDone = 1;
+//        }
+//    }
+    if ( (recvLen1 = recv(m_tcp_sockfd, money, BUFLEN, 0)) == -1){
+            perror("Error receiving message from M");
+            close(client_sockfd);
+            exit(EXIT_FAILURE);
+        }
+    money[recvLen1] = '\0';
+    cout<<"recv money succ"<<endl;
 }
 
 int main(int argc, char * argv[]){
@@ -148,12 +199,19 @@ int main(int argc, char * argv[]){
         }
 
         sendTransaction(argv[1], argv[2], argv[3]);
+        recvMsgFromM();
+        //if name1 and name2 exist in transacitons
+        if(msg[0] == '1'){
+
+            recvMoneyFromM();
+            cout<<string(money)<<endl;
+        }
     }
 
-    cout << "The client is up and running." << endl;
-
-
-    cout<<"send succ"<<endl;
+//    cout << "The client is up and running." << endl;
+//
+//
+//    cout<<"send succ"<<endl;
 
     return 0;
 }

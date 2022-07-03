@@ -73,16 +73,47 @@ string decrypt(string s){
             //for A-Z
         }else if(i >= 65 && i <= 90){
             if(int(i) >= 65 && int(i) <= 67){
-                i = char(int(i) + 10 - 3);
+                i = char(int(i) + 26 - 3);
             }else{
                 i = char(int(i) - 3);
             }
             // for a-z
         }else if(i >= 97 && i <= 122){
             if(int(i) >= 97 && int(i) <=99){
-                i = char(int(i) + 10 - 3);
+                i = char(int(i) + 26 - 3);
             }else{
                 i = char(int(i) - 3);
+            }
+        }
+    }
+    return s;
+}
+
+string encrypt(string s){
+    for(char & i : s){
+        //for 0 - 9
+        if(int(i) >= 48 && int(i) <= 57){
+            // 7-9
+            if(int(i) >= 55 && int(i) <= 57){
+                i = char(int(i) - 10 + 3);
+            }else{
+                i = char(int(i) + 3);
+            }
+            //for A-Z
+        }else if(i >= 65 && i <= 90){
+            // X-Z
+            if(int(i) >= 88 && int(i) <= 90){
+                i = char(int(i) - 26 + 3);
+            }else{
+                i = char(int(i) + 3);
+            }
+            // for a-z
+        }else if(i >= 97 && i <= 122){
+            // x-z
+            if(int(i) >= 120 && int(i) <=122){
+                i = char(int(i) - 26 + 3);
+            }else{
+                i = char(int(i) + 3);
             }
         }
     }
@@ -119,7 +150,7 @@ void addTransaction(string id, string name1, string name2, string amount){
     transactions.push_back(transaction{id, name1, name2, amount});
     ofstream write;
     write.open("block1.txt",ios::app);
-    write << id << " " <<name1 << " " << name2 << " "<< amount << endl;
+    write << id << " " <<encrypt(name1) << " " << encrypt(name2) << " "<< encrypt(amount) << endl;
     write.close();
 
 }
