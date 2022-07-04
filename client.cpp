@@ -110,11 +110,10 @@ void sendTransaction(char *sender, char *receiver, char *amount){
     }
     else
         client_portNum = ntohs(client.sin_port);
-    cout <<sender << " has requested to transfer "<<amount<< " txcoins to "<< receiver << endl;
 
 }
 
-// todo: receive Msg from M
+
 void recvMsgFromM(){
     if ( (recvLen1 = recv(m_tcp_sockfd, msg, BUFLEN, 0)) == -1){
         perror("Error receiving message from AWS");
@@ -122,46 +121,16 @@ void recvMsgFromM(){
         exit(EXIT_FAILURE);
     }
     msg[recvLen1] = '\0';
-    cout<<"recv msg: "<<msg[0]<<endl;
 
 }
 
 void recvMoneyFromM(){
-//    char name[BUFLEN];
-//    char money[BUFLEN];
-
-//    int recvDone = 0;// 0 = not finished receiving, 1 = finished receiving
-//    while(!recvDone){
-//        if ( (recvLen1 = recv(m_tcp_sockfd, name, BUFLEN, 0)) == -1){
-//            perror("Error receiving message from M");
-//            close(client_sockfd);
-//            exit(EXIT_FAILURE);
-//        }
-//        name[recvLen1] = '\0';
-//        cout<<"recv name succ"<<endl;
-//        if(name[0] != '\0'){
-//            if ( (recvLen1 = recv(m_tcp_sockfd, money, BUFLEN, 0)) == -1){
-//                perror("Error receiving message from M");
-//                close(client_sockfd);
-//                exit(EXIT_FAILURE);
-//            }
-//            money[recvLen1] = '\0';
-//            cout<<"recv money succ"<<endl;
-//            //add name and money to wallets
-//            wallets.insert({string (name),string(money)});
-//
-//        }
-//        else{
-//            recvDone = 1;
-//        }
-//    }
     if ( (recvLen1 = recv(m_tcp_sockfd, money, BUFLEN, 0)) == -1){
             perror("Error receiving message from M");
             close(client_sockfd);
             exit(EXIT_FAILURE);
         }
     money[recvLen1] = '\0';
-    cout<<"recv money succ"<<endl;
 }
 
 int main(int argc, char * argv[]){
@@ -171,6 +140,7 @@ int main(int argc, char * argv[]){
     }
 
     init_TCP();
+    cout << "The client is up and running."<<endl;
 
     if(argc == 2){
         // check if Username is letter
@@ -179,6 +149,14 @@ int main(int argc, char * argv[]){
             exit(EXIT_FAILURE);
         }
         sendCheckInfo(argv[1]);
+        recvMsgFromM();
+        if(msg[1] == '2'){
+            cout<<*argv[1]<<" is not in network"<<endl;
+        }else{
+            recvMoneyFromM();
+            cout<<"The current balance of "<<argv[1]<< " is : "<< money<<" txcoins."<<endl;
+        }
+
     }
 
     if(argc == 4){
@@ -199,19 +177,32 @@ int main(int argc, char * argv[]){
         }
 
         sendTransaction(argv[1], argv[2], argv[3]);
+        cout<< argv[1]<<" has requested to transfer "<< argv[3]<<" txcoins to "<<argv[2]<<endl;
         recvMsgFromM();
         //if name1 and name2 exist in transacitons
         if(msg[0] == '1'){
-
+            for(int i = 0; i < 10000000; i++){}
             recvMoneyFromM();
-            cout<<string(money)<<endl;
+            cout<< argv[1]<<" successfully transferred "<< argv[3]<<" txcoins to "<<argv[2]<<endl;
+            cout<<"The current balance of "<<argv[1]<< " is : "<< money<<" txcoins."<<endl;
+        }
+        // msg = 2 means name1 exist, name2 not
+        else if(msg[0] == '2'){
+            cout << "Unable to proceed with the transaction as "<<argv[2]<<" is not part of the network."<< endl;
+        //msg = 3 means name2 exist, name1 not
+        }else if(msg[0] == '3'){
+            cout << "Unable to proceed with the transaction as "<<argv[1]<<" is not part of the network."<< endl;
+        }else if(msg[0] == '4'){
+            cout << "Unable to proceed with the transaction as "<<argv[1]<<" and "<< argv[2]<<" are not part of the network."<< endl;
+        }else{
+            //if msg == 0
+            // insufficient
+            for(int i = 0; i < 10000000; i++){}
+            cout<< argv[1]<<" was unable to transfer " <<argv[3]<< " txcoins to "<<argv[2]<<" because of insufficient balance."<<endl;
+            recvMoneyFromM();
+            cout<<"The current balance of "<<argv[1]<< " is : "<< money<<" txcoins."<<endl;
         }
     }
-
-//    cout << "The client is up and running." << endl;
-//
-//
-//    cout<<"send succ"<<endl;
 
     return 0;
 }

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <ctime>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <vector>
@@ -33,6 +34,7 @@ char name1[BUFLEN];
 char name2[BUFLEN];
 char transaction_amount[BUFLEN];
 int recvLen1, sendLen;
+
 
 fd_set readfds;
 struct timeval tv;
@@ -154,7 +156,7 @@ void acceptFromMonitor(){
     }
 }
 
-void recvFromClient(){
+void recvTransactionFromClient(){
     recvLen1 = recv(new_tcp_client_fd, name1, BUFLEN, 0);
     if (recvLen1 == -1){
         perror("Error receiving message from client");
@@ -178,6 +180,16 @@ void recvFromClient(){
         exit(EXIT_FAILURE);
     }
     transaction_amount[recvLen1] = '\0';
+}
+
+void recvCheckWalletFromClient(){
+    recvLen1 = recv(new_tcp_client_fd, name1, BUFLEN, 0);
+    if (recvLen1 == -1){
+        perror("Error receiving message from client");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    name1[recvLen1] = '\0';
 }
 
 void setServerABC(){
@@ -206,6 +218,7 @@ void setServerABC(){
 }
 
 void sendToA(char *id, char *from, char *to, char *amount){
+    cout << "The main server sent a request to server A"<<endl;
 
     if ((sendLen = sendto(m_udp_fd, id, strlen(id), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
@@ -228,10 +241,65 @@ void sendToA(char *id, char *from, char *to, char *amount){
         exit(EXIT_FAILURE);
     }
 
-    cout << "M send to ServerA succ" << endl;
+    cout << "The main server received the feedback from server A using UDP over port 24161." << endl;
 }
 
-// todo: receive from server ABC
+void sendToB(char *id, char *from, char *to, char *amount){
+
+    cout << "The main server sent a request to server B"<<endl;
+
+    if ((sendLen = sendto(m_udp_fd, id, strlen(id), 0, (struct sockaddr *) &serverB, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server B from M");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, from, strlen(from), 0, (struct sockaddr *) &serverB, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server B from M");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, to, strlen(to), 0, (struct sockaddr *) &serverB, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server B from M");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, amount, strlen(amount), 0, (struct sockaddr *) &serverB, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server B from M");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    cout << "The main server received the feedback from server B using UDP over port 24161." << endl;
+}
+
+void sendToC(char *id, char *from, char *to, char *amount){
+
+    cout << "The main server sent a request to server C"<<endl;
+
+    if ((sendLen = sendto(m_udp_fd, id, strlen(id), 0, (struct sockaddr *) &serverC, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server C from AWS");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, from, strlen(from), 0, (struct sockaddr *) &serverC, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server C from AWS");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, to, strlen(to), 0, (struct sockaddr *) &serverC, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server C from AWS");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+    if ((sendLen = sendto(m_udp_fd, amount, strlen(amount), 0, (struct sockaddr *) &serverC, sizeof(struct sockaddr_in))) == -1) {
+        perror("Error sending UDP message to Server C from AWS");
+        close(new_tcp_client_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    cout << "The main server received the feedback from server C using UDP over port 24161." << endl;
+}
+
 void receiveFromA(){
 
     char recv_id[BUFLEN];
@@ -240,11 +308,10 @@ void receiveFromA(){
     char recv_amount[BUFLEN];
     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
     socklen_t serverALen = sizeof(serverA);
-    cout << "receive from server A start" << endl;
+    cout << "The main server sent a request to server A."<<endl;
     while(! recvDone){
 
         struct transaction temp;
-        cout << "receive id server A start" << endl;
         if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
             perror("Error receiving message from Server A");
             close(new_tcp_client_fd);
@@ -252,7 +319,6 @@ void receiveFromA(){
         }
         recv_id[recvLen1] = '\0';
         temp.id = string(recv_id);
-        cout << "receive id server A" << endl;
 
         if (recv_id[0] != '\0'){
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
@@ -262,7 +328,6 @@ void receiveFromA(){
             }
             recv_name1[recvLen1] = '\0';
             temp.from = string(recv_name1);
-            cout << "receive name1 server A" << endl;
 
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
                 perror("Error receiving message from Server A");
@@ -271,7 +336,6 @@ void receiveFromA(){
             }
             recv_name2[recvLen1] = '\0';
             temp.to = string(recv_name2);
-            cout << "receive name2 server A" << endl;
 
             //receive amount
             if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
@@ -281,7 +345,6 @@ void receiveFromA(){
             }
             recv_amount[recvLen1] = '\0';
             temp.amount = string(recv_amount);
-            cout << "receive amount server A" << endl;
             transactions.push_back(temp);
         }else{
             //toggle recvDone
@@ -289,8 +352,9 @@ void receiveFromA(){
         }
     }
 
-    cout << "receive from server A succ" << endl;
+    cout << "The main server received transactions from Server A using UDP over port 21161." << endl;
 }
+
 void receiveFromB(){
 
     char recv_id[BUFLEN];
@@ -299,11 +363,10 @@ void receiveFromB(){
     char recv_amount[BUFLEN];
     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
     socklen_t serverBLen = sizeof(serverB);
-    cout << "receive from server B start" << endl;
+    cout << "The main server sent a request to server B."<<endl;
     while(! recvDone){
 
         struct transaction temp;
-        cout << "receive id server B start" << endl;
         if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
             perror("Error receiving message from Server A");
             close(new_tcp_client_fd);
@@ -311,7 +374,6 @@ void receiveFromB(){
         }
         recv_id[recvLen1] = '\0';
         temp.id = string(recv_id);
-        cout << "receive id server B" << endl;
 
         if (recv_id[0] != '\0'){
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
@@ -321,7 +383,6 @@ void receiveFromB(){
             }
             recv_name1[recvLen1] = '\0';
             temp.from = string(recv_name1);
-            cout << "receive name1 server B" << endl;
 
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
                 perror("Error receiving message from Server A");
@@ -330,7 +391,6 @@ void receiveFromB(){
             }
             recv_name2[recvLen1] = '\0';
             temp.to = string(recv_name2);
-            cout << "receive name2 server B" << endl;
 
             //receive amount
             if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
@@ -340,7 +400,6 @@ void receiveFromB(){
             }
             recv_amount[recvLen1] = '\0';
             temp.amount = string(recv_amount);
-            cout << "receive amount server B" << endl;
             transactions.push_back(temp);
         }else{
             //toggle recvDone
@@ -348,8 +407,9 @@ void receiveFromB(){
         }
     }
 
-    cout << "receive from server B succ" << endl;
+    cout << "The main server received transactions from Server B using UDP over port 22161." << endl;
 }
+
 void receiveFromC(){
 
     char recv_id[BUFLEN];
@@ -358,11 +418,10 @@ void receiveFromC(){
     char recv_amount[BUFLEN];
     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
     socklen_t serverCLen = sizeof(serverC);
-    cout << "receive from server A start" << endl;
+    cout << "The main server sent a request to server C."<<endl;
     while(! recvDone){
 
         struct transaction temp;
-        cout << "receive id server C start" << endl;
         if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
             perror("Error receiving message from Server C");
             close(new_tcp_client_fd);
@@ -370,7 +429,6 @@ void receiveFromC(){
         }
         recv_id[recvLen1] = '\0';
         temp.id = string(recv_id);
-        cout << "receive id server C" << endl;
 
         if (recv_id[0] != '\0'){
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
@@ -380,7 +438,6 @@ void receiveFromC(){
             }
             recv_name1[recvLen1] = '\0';
             temp.from = string(recv_name1);
-            cout << "receive name1 server C" << endl;
 
             if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
                 perror("Error receiving message from Server C");
@@ -389,7 +446,6 @@ void receiveFromC(){
             }
             recv_name2[recvLen1] = '\0';
             temp.to = string(recv_name2);
-            cout << "receive name2 server C" << endl;
 
             //receive amount
             if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
@@ -399,7 +455,6 @@ void receiveFromC(){
             }
             recv_amount[recvLen1] = '\0';
             temp.amount = string(recv_amount);
-            cout << "receive amount server C" << endl;
             transactions.push_back(temp);
         }else{
             //toggle recvDone
@@ -407,7 +462,7 @@ void receiveFromC(){
         }
     }
 
-    cout << "receive from server C succ" << endl;
+    cout << "The main server received transactions from Server C using UDP over port 23161." << endl;
 }
 
 void build_wallets(){
@@ -432,49 +487,14 @@ void build_wallets(){
     }
 }
 
-
 void sendWalletToClient(string target_name){
-
     char money[BUFLEN];
-
-//    for(auto wallet: wallets){
-//        for(int i = 0; i < 10000000; i++){}
-//        // send name
-////        sprintf(name, "%s", wallet.first.c_str());
-//        cout<<"start send name"<<endl;
-//        if(send(new_tcp_client_fd, wallet.first.c_str(), strlen(name), 0) == -1){
-//            perror("Error sending data to client");
-//            close(new_tcp_client_fd);
-//            exit(EXIT_FAILURE);
-//        }
-//        cout<<"send name to client succ"<<endl;
-//        //send money
-////        for(int i = 0; i < 10000000; i++){}
-//        sprintf(money, "%d", wallet.second);
-//        if(send(new_tcp_client_fd,money, strlen(money), 0) == -1){
-//            perror("Error sending data to client");
-//            close(new_tcp_client_fd);
-//            exit(EXIT_FAILURE);
-//        }
-//        cout<<"send money to client succ"<<endl;
-//    }
-//
-//    // Send NULL char to signify end of communication
-//    for(int i = 0; i < 10000000; i++){}
-//    memset(flag, '\0', sizeof(flag));
-//    if (send(new_tcp_client_fd, flag, strlen(flag), 0) == -1) {
-//        perror("Error sending data to client");
-//        close(new_tcp_client_fd);
-//        exit(EXIT_FAILURE);
-//    }
     sprintf(money, "%d", wallets.find(target_name)->second);
     if(send(new_tcp_client_fd, money, strlen(money), 0) == -1){
             perror("Error sending data to client");
             close(new_tcp_client_fd);
             exit(EXIT_FAILURE);
         }
-
-    cout<<"send money succ"<<endl;
 }
 
 void sendMsgToClient(int msg){
@@ -485,61 +505,101 @@ void sendMsgToClient(int msg){
         close(new_tcp_client_fd);
         exit(EXIT_FAILURE);
     }
-    cout<<"send msg suc"<<endl;
 }
 
 void select_Client(){
     acceptFromClient();
-    cout << "acceptFromClient succ"<<endl;
-    recvFromClient();
-    cout << "recevfrom client succ"<<endl;
-    cout << name1 << endl;
-    cout << name2 << endl;
-    cout << transaction_amount << endl;
+    build_wallets();
 
     // that means client want to transact
     if((name2[0] != '\0')){
-
+        recvTransactionFromClient();
+        cout << "The main server received from " << name1 << " to transfer "<<transaction_amount <<" coins to "<< name2<<" using TCP over port "<<M_Client_TCP_PORT <<endl;
         char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
         // convert id int to char[]
         sprintf(now_id, "%lu", transactions.size() + 1);
 
         // check name if exist or not
         // from name and to name both exist
-        build_wallets();
-        if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) != wallets.end()){
-            //1 means both from and to are in the wallets
-            sendMsgToClient(1);
 
-            transactions.push_back({to_string(transactions.size() + 1), string(name1), string(name2), string(transaction_amount)});
-            build_wallets();
+        if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) != wallets.end()){
+            // 0 means both from and to are in the wallets, but name1 not sufficent to provide money to name2
+            if(wallets.find(name1)->second - atoi(transaction_amount) < 0){
+                sendMsgToClient(0);
+                //even insufficient, send the original balance
+                for(int i = 0; i < 10000000; i++){}
+                sendWalletToClient(name1);
+            }else{
+                sendMsgToClient(1);
+
+                transactions.push_back({to_string(transactions.size() + 1), string(name1), string(name2), string(transaction_amount)});
+                build_wallets();
+                for(int i = 0; i < 10000000; i++){}
+                sendWalletToClient(name1);
+
+                // randomly choose server to add new transaction in blockX.txt
+                srand((unsigned)time(NULL));
+                int random = (rand() % (3-1+1))+1;
+                if(random == 1){
+                    sendToA(now_id,name1,name2,transaction_amount);
+                }else if(random == 2){
+                    sendToB(now_id,name1,name2,transaction_amount);
+                }else{
+                    sendToC(now_id,name1,name2,transaction_amount);
+                }
+                cout<<"The main server sent the result of the transaction to the client."<<endl;
+            }
+
+        }
+        // name1 exist, name2 not
+        else if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) == wallets.end()){
+            sendMsgToClient(2);
+            // name1 not exist, name2 exist
+        } else if(wallets.find(string(name1)) == wallets.end() && wallets.find(string(name2)) != wallets.end()){
+            sendMsgToClient(3);
+        }else{
+            //neither name1 nor name2 exist
+            // send4
+            sendMsgToClient(4);
+        }
+    }
+
+
+    // client only want to check balance
+    else{
+        recvCheckWalletFromClient();
+        cout<<"The main server received input="<< name1 <<" from the client using TCP over port "<< M_Client_TCP_PORT<<endl;
+        // check name1 if exist
+        // if not
+        if(!wallets.count(name1)){
+            sendMsgToClient(2);
+            cout << name1 << " is not in network"<<endl;
+        }else{
+            sendMsgToClient(1);
             for(int i = 0; i < 10000000; i++){}
             sendWalletToClient(name1);
-            sendToA(now_id,name1,name2,transaction_amount);
+            cout << "The main server sent the current balance to the client."<< endl;
         }
-            // todo:if either name is not exist, send 0 to client.
-        else{
-            sendMsgToClient((0));
-        }
+
     }
     close(new_tcp_client_fd);
     close(new_tcp_monitor_fd);
 }
 
+void select_Monitor(){
+
+}
+
 int main(){
+    cout << "The main server is up and running."<<endl;
     init_ClientTCP();
     init_MonitorTCP();
-    cout << "The MServer is up and running." << endl;
     init_UDP();
 
 
     receiveFromA();
     receiveFromB();
     receiveFromC();
-//    sendToA();
-    for(auto &i : transactions){
-        cout << i.id << i.from << i.to << i.amount <<endl;
-    }
 
     while(1){
         FD_ZERO(&readfds);
@@ -548,7 +608,7 @@ int main(){
         //todo another socket
 
         // since we got s2 second, it’s the "greater", so we use that for
-// the n param in select()
+        // the n param in select()
         n = m_tcp_monitor_fd + 1;
         // wait until either socket has data ready to be recv()d (timeout 10.5 secs)
         tv.tv_sec = 10;
@@ -559,20 +619,14 @@ int main(){
         } else if (rv == 0) {
 //            printf("Timeout occurred! No data after 10.5 seconds.\n");
         } else {
-        // one or both of the descriptors have data
             if (FD_ISSET(m_tcp_client_fd, &readfds)) {
                 select_Client();
 
             }
+            //todo: send to monitor
             if (FD_ISSET(m_tcp_monitor_fd, &readfds)) {
-//                recv(s1, buf2, sizeof(buf2), 0);
+                select_Monitor();
             }
         }
-
-
-
     }
-//    sendToA();
-
-
 }

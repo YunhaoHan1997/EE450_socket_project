@@ -123,10 +123,8 @@ string encrypt(string s){
 void constructTransactions(){
     string line;
     std::ifstream transactionFile("block1.txt");
-    cout<<"open file succ"<<endl;
     if(transactionFile.is_open()){
         while(!transactionFile.eof() and getline(transactionFile, line)){
-            cout<<"read file"<<endl;
             string id;
             string name1;
             string name2;
@@ -134,7 +132,6 @@ void constructTransactions(){
             stringstream ss;
             ss << line;
             ss >> id >>name1 >> name2 >> amount;
-//            cout << name1 << name2 << amount;
             if(!id.empty() && !name1.empty() && !name2.empty() && !amount.empty()){
                 name1 = decrypt(name1);
                 name2 = decrypt(name2);
@@ -162,7 +159,7 @@ void recvFromM(){
     char recv_amount[BUFLEN];
 
     socklen_t m_len = sizeof(m_udp);
-    cout<<"begin receive"<<endl;
+//    cout<<"begin receive"<<endl;
     //    recv trans ID
 
     if ((recvLen1 = recvfrom(serverA_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
@@ -170,14 +167,14 @@ void recvFromM(){
         exit(EXIT_FAILURE);
     }
     recv_id[recvLen1] = '\0';
-    cout<<"receive id"<<endl;
+//    cout<<"receive id"<<endl;
 
     //    recv name1
     if ((recvLen1 = recvfrom(serverA_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
-    cout<<"receive name1"<<endl;
+//    cout<<"receive name1"<<endl;
     recv_name1[recvLen1] = '\0';
 
     //recv name2
@@ -186,7 +183,7 @@ void recvFromM(){
         exit(EXIT_FAILURE);
     }
     recv_name2[recvLen1] = '\0';
-    cout<<"receive name2"<<endl;
+//    cout<<"receive name2"<<endl;
 
     //recv amount
     if ((recvLen1 = recvfrom(serverA_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
@@ -194,13 +191,13 @@ void recvFromM(){
         exit(EXIT_FAILURE);
     }
     recv_amount[recvLen1] = '\0';
-    cout<<"receive amount"<<endl;
+//    cout<<"receive amount"<<endl;
+    cout<< "The ServerA received a request from the Main Server."<<endl;
+    cout<<"The ServerA finished sending the response to the Main Server."<<endl;
 
     addTransaction(string(recv_id),string(recv_name1),string(recv_name2),string(recv_amount));
 
-//    cout << "serverA receive from M succ" << endl;
 
-//    cout << "The Server A has received input for finding shortest paths: starting vertex " << recvVertexIndex << " of map " << recvMapID << "." << endl;
 }
 
 //todo: send to M
@@ -212,7 +209,6 @@ void sendToM(){
     char amountBuf[BUFLEN];
     int sendLen;
     memset(flag, '\0', sizeof(flag));
-    cout << "begin send to M" << endl;
     for(const transaction& item: transactions){
         sprintf(idBuf, "%s",item.id.c_str());
         sprintf(name1Buf, "%s", item.name1.c_str());
@@ -223,7 +219,6 @@ void sendToM(){
             perror("Error sending UDP message1 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-        cout << "send id to M" << endl;
         // erase idBuf
         memset(idBuf,'\0', sizeof(idBuf));
 
@@ -232,7 +227,6 @@ void sendToM(){
             perror("Error sending UDP message2 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-        cout << "send name1 to M" << endl;
         // erase name1Buf
         memset(name1Buf,'\0', sizeof(name1Buf));
 
@@ -241,7 +235,6 @@ void sendToM(){
             perror("Error sending UDP message3 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-        cout << "send name2 to M" << endl;
         // erase name2Buf
         memset(name2Buf,'\0', sizeof(name2Buf));
 
@@ -250,7 +243,6 @@ void sendToM(){
             perror("Error sending UDP message4 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
-        cout << "send amount to M" << endl;
         // erase amountBuf
         memset(amountBuf,'\0', sizeof(amountBuf));
     }
@@ -273,14 +265,13 @@ void setM(){
 
 int main(){
     init_UDP();
-    cout << "init udp succ" << endl;
+    cout << "The ServerA is up and running using UDP on port " << ServerA_PORT <<endl;
     constructTransactions();
-    cout << "The size of transactions is: " <<transactions.size()<<endl;
+//    cout << "The size of transactions is: " <<transactions.size()<<endl;
 //    recvFromM();
     // in udp, if we want to send, we first set
     setM();
     sendToM();
-//    recvFromM();
     while(1){
         recvFromM();
     }
