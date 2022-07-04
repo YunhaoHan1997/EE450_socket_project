@@ -2,6 +2,8 @@
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/serverM.dir
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/test.dir
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/serverA.dir
+/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/serverB.dir
+/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/serverC.dir
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/testClient.dir
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/edit_cache.dir
 /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug/CMakeFiles/rebuild_cache.dir

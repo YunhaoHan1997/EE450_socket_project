@@ -34,6 +34,11 @@ char name2[BUFLEN];
 char transaction_amount[BUFLEN];
 int recvLen1, sendLen;
 
+fd_set readfds;
+struct timeval tv;
+int n;
+int rv;
+
 struct transaction{
     string id;
     string from;
@@ -201,10 +206,6 @@ void setServerABC(){
 }
 
 void sendToA(char *id, char *from, char *to, char *amount){
-//    char a[] = "abc";
-//    char b[] = "abc";
-//    char c[] = "abc";
-//    char d[] = "abc";
 
     if ((sendLen = sendto(m_udp_fd, id, strlen(id), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message to Server A from AWS");
@@ -290,6 +291,124 @@ void receiveFromA(){
 
     cout << "receive from server A succ" << endl;
 }
+void receiveFromB(){
+
+    char recv_id[BUFLEN];
+    char recv_name1[BUFLEN];
+    char recv_name2[BUFLEN];
+    char recv_amount[BUFLEN];
+    int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
+    socklen_t serverBLen = sizeof(serverB);
+    cout << "receive from server B start" << endl;
+    while(! recvDone){
+
+        struct transaction temp;
+        cout << "receive id server B start" << endl;
+        if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
+            perror("Error receiving message from Server A");
+            close(new_tcp_client_fd);
+            exit(EXIT_FAILURE);
+        }
+        recv_id[recvLen1] = '\0';
+        temp.id = string(recv_id);
+        cout << "receive id server B" << endl;
+
+        if (recv_id[0] != '\0'){
+            if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
+                perror("Error receiving message from Server B");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_name1[recvLen1] = '\0';
+            temp.from = string(recv_name1);
+            cout << "receive name1 server B" << endl;
+
+            if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
+                perror("Error receiving message from Server A");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_name2[recvLen1] = '\0';
+            temp.to = string(recv_name2);
+            cout << "receive name2 server B" << endl;
+
+            //receive amount
+            if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverB, &serverBLen )) < 0){
+                perror("Error receiving message from Server B");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_amount[recvLen1] = '\0';
+            temp.amount = string(recv_amount);
+            cout << "receive amount server B" << endl;
+            transactions.push_back(temp);
+        }else{
+            //toggle recvDone
+            recvDone = 1;
+        }
+    }
+
+    cout << "receive from server B succ" << endl;
+}
+void receiveFromC(){
+
+    char recv_id[BUFLEN];
+    char recv_name1[BUFLEN];
+    char recv_name2[BUFLEN];
+    char recv_amount[BUFLEN];
+    int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
+    socklen_t serverCLen = sizeof(serverC);
+    cout << "receive from server A start" << endl;
+    while(! recvDone){
+
+        struct transaction temp;
+        cout << "receive id server C start" << endl;
+        if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
+            perror("Error receiving message from Server C");
+            close(new_tcp_client_fd);
+            exit(EXIT_FAILURE);
+        }
+        recv_id[recvLen1] = '\0';
+        temp.id = string(recv_id);
+        cout << "receive id server C" << endl;
+
+        if (recv_id[0] != '\0'){
+            if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
+                perror("Error receiving message from Server C");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_name1[recvLen1] = '\0';
+            temp.from = string(recv_name1);
+            cout << "receive name1 server C" << endl;
+
+            if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
+                perror("Error receiving message from Server C");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_name2[recvLen1] = '\0';
+            temp.to = string(recv_name2);
+            cout << "receive name2 server C" << endl;
+
+            //receive amount
+            if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverC, &serverCLen )) < 0){
+                perror("Error receiving message from Server A");
+                close(new_tcp_client_fd);
+                exit(EXIT_FAILURE);
+            }
+            recv_amount[recvLen1] = '\0';
+            temp.amount = string(recv_amount);
+            cout << "receive amount server C" << endl;
+            transactions.push_back(temp);
+        }else{
+            //toggle recvDone
+            recvDone = 1;
+        }
+    }
+
+    cout << "receive from server C succ" << endl;
+}
 
 void build_wallets(){
     //clean wallets
@@ -297,13 +416,9 @@ void build_wallets(){
     for(auto transaction: transactions){
         if(wallets.find(transaction.from) == wallets.end()){
             wallets.insert({transaction.from, 1000});
-//            auto it1 = wallets.find(transaction.from);
-//            it1->second -= stoi(transaction.amount);
         }
         if(wallets.find(transaction.to) == wallets.end()){
             wallets.insert({transaction.to, 1000});
-//            auto it2 = wallets.find(transaction.to);
-//            it2->second += stoi(transaction.amount);
         }
     }
 
@@ -317,7 +432,7 @@ void build_wallets(){
     }
 }
 
-// todo: send wallets to client
+
 void sendWalletToClient(string target_name){
 
     char money[BUFLEN];
@@ -373,6 +488,44 @@ void sendMsgToClient(int msg){
     cout<<"send msg suc"<<endl;
 }
 
+void select_Client(){
+    acceptFromClient();
+    cout << "acceptFromClient succ"<<endl;
+    recvFromClient();
+    cout << "recevfrom client succ"<<endl;
+    cout << name1 << endl;
+    cout << name2 << endl;
+    cout << transaction_amount << endl;
+
+    // that means client want to transact
+    if((name2[0] != '\0')){
+
+        char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
+        // convert id int to char[]
+        sprintf(now_id, "%lu", transactions.size() + 1);
+
+        // check name if exist or not
+        // from name and to name both exist
+        build_wallets();
+        if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) != wallets.end()){
+            //1 means both from and to are in the wallets
+            sendMsgToClient(1);
+
+            transactions.push_back({to_string(transactions.size() + 1), string(name1), string(name2), string(transaction_amount)});
+            build_wallets();
+            for(int i = 0; i < 10000000; i++){}
+            sendWalletToClient(name1);
+            sendToA(now_id,name1,name2,transaction_amount);
+        }
+            // todo:if either name is not exist, send 0 to client.
+        else{
+            sendMsgToClient((0));
+        }
+    }
+    close(new_tcp_client_fd);
+    close(new_tcp_monitor_fd);
+}
+
 int main(){
     init_ClientTCP();
     init_MonitorTCP();
@@ -381,47 +534,42 @@ int main(){
 
 
     receiveFromA();
+    receiveFromB();
+    receiveFromC();
 //    sendToA();
     for(auto &i : transactions){
         cout << i.id << i.from << i.to << i.amount <<endl;
     }
 
     while(1){
-        acceptFromClient();
-        cout << "acceptFromClient succ"<<endl;
-        recvFromClient();
-        cout << "recevfrom client succ"<<endl;
-        cout << name1 << endl;
-        cout << name2 << endl;
-        cout << transaction_amount << endl;
+        FD_ZERO(&readfds);
+        FD_SET(m_tcp_client_fd, &readfds);
+        FD_SET(m_tcp_monitor_fd, &readfds);
+        //todo another socket
 
-        // that means client want to transact
-        if((name2[0] != '\0')){
+        // since we got s2 second, it’s the "greater", so we use that for
+// the n param in select()
+        n = m_tcp_monitor_fd + 1;
+        // wait until either socket has data ready to be recv()d (timeout 10.5 secs)
+        tv.tv_sec = 10;
+        tv.tv_usec = 500000;
+        rv = select(n, &readfds, NULL, NULL, &tv);
+        if (rv == -1) {
+            perror("select"); // error occurred in select()
+        } else if (rv == 0) {
+//            printf("Timeout occurred! No data after 10.5 seconds.\n");
+        } else {
+        // one or both of the descriptors have data
+            if (FD_ISSET(m_tcp_client_fd, &readfds)) {
+                select_Client();
 
-            char now_id[MAX_NUM_OF_TRANSACTIONS_BIT];
-            // convert id int to char[]
-            sprintf(now_id, "%lu", transactions.size() + 1);
-
-            // check name if exist or not
-            // from name and to name both exist
-            build_wallets();
-            if(wallets.find(string(name1)) != wallets.end() && wallets.find(string(name2)) != wallets.end()){
-                //1 means both from and to are in the wallets
-                sendMsgToClient(1);
-
-                transactions.push_back({to_string(transactions.size() + 1), string(name1), string(name2), string(transaction_amount)});
-                build_wallets();
-                for(int i = 0; i < 10000000; i++){}
-                sendWalletToClient(name1);
-                sendToA(now_id,name1,name2,transaction_amount);
             }
-            // if either name is not exist, send 0 to client.
-            else{
-                sendMsgToClient((0));
+            if (FD_ISSET(m_tcp_monitor_fd, &readfds)) {
+//                recv(s1, buf2, sizeof(buf2), 0);
             }
         }
-        close(new_tcp_client_fd);
-        close(new_tcp_monitor_fd);
+
+
 
     }
 //    sendToA();
