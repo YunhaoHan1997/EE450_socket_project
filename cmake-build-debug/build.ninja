@@ -55,18 +55,6 @@ build CMakeFiles/client.dir/client.cpp.o: CXX_COMPILER__client_Debug /Users/yunh
   OBJECT_DIR = CMakeFiles/client.dir
   OBJECT_FILE_DIR = CMakeFiles/client.dir
 
-build CMakeFiles/client.dir/test.cpp.o: CXX_COMPILER__client_Debug /Users/yunhao/Downloads/usc课程/EE450/project/test.cpp || cmake_object_order_depends_target_client
-  DEP_FILE = CMakeFiles/client.dir/test.cpp.o.d
-  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
-  OBJECT_DIR = CMakeFiles/client.dir
-  OBJECT_FILE_DIR = CMakeFiles/client.dir
-
-build CMakeFiles/client.dir/serverA.cpp.o: CXX_COMPILER__client_Debug /Users/yunhao/Downloads/usc课程/EE450/project/serverA.cpp || cmake_object_order_depends_target_client
-  DEP_FILE = CMakeFiles/client.dir/serverA.cpp.o.d
-  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
-  OBJECT_DIR = CMakeFiles/client.dir
-  OBJECT_FILE_DIR = CMakeFiles/client.dir
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target client
@@ -75,7 +63,7 @@ build CMakeFiles/client.dir/serverA.cpp.o: CXX_COMPILER__client_Debug /Users/yun
 #############################################
 # Link the executable client
 
-build client: CXX_EXECUTABLE_LINKER__client_Debug CMakeFiles/client.dir/client.cpp.o CMakeFiles/client.dir/test.cpp.o CMakeFiles/client.dir/serverA.cpp.o
+build client: CXX_EXECUTABLE_LINKER__client_Debug CMakeFiles/client.dir/client.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
   OBJECT_DIR = CMakeFiles/client.dir
   POST_BUILD = :
@@ -176,6 +164,99 @@ build serverA: CXX_EXECUTABLE_LINKER__serverA_Debug CMakeFiles/serverA.dir/serve
   TARGET_FILE = serverA
   TARGET_PDB = serverA.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target serverB
+
+
+#############################################
+# Order-only phony target for serverB
+
+build cmake_object_order_depends_target_serverB: phony || CMakeFiles/serverB.dir
+
+build CMakeFiles/serverB.dir/serverB.cpp.o: CXX_COMPILER__serverB_Debug /Users/yunhao/Downloads/usc课程/EE450/project/serverB.cpp || cmake_object_order_depends_target_serverB
+  DEP_FILE = CMakeFiles/serverB.dir/serverB.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
+  OBJECT_DIR = CMakeFiles/serverB.dir
+  OBJECT_FILE_DIR = CMakeFiles/serverB.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target serverB
+
+
+#############################################
+# Link the executable serverB
+
+build serverB: CXX_EXECUTABLE_LINKER__serverB_Debug CMakeFiles/serverB.dir/serverB.cpp.o
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
+  OBJECT_DIR = CMakeFiles/serverB.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = serverB
+  TARGET_PDB = serverB.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target serverC
+
+
+#############################################
+# Order-only phony target for serverC
+
+build cmake_object_order_depends_target_serverC: phony || CMakeFiles/serverC.dir
+
+build CMakeFiles/serverC.dir/serverC.cpp.o: CXX_COMPILER__serverC_Debug /Users/yunhao/Downloads/usc课程/EE450/project/serverC.cpp || cmake_object_order_depends_target_serverC
+  DEP_FILE = CMakeFiles/serverC.dir/serverC.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
+  OBJECT_DIR = CMakeFiles/serverC.dir
+  OBJECT_FILE_DIR = CMakeFiles/serverC.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target serverC
+
+
+#############################################
+# Link the executable serverC
+
+build serverC: CXX_EXECUTABLE_LINKER__serverC_Debug CMakeFiles/serverC.dir/serverC.cpp.o
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
+  OBJECT_DIR = CMakeFiles/serverC.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = serverC
+  TARGET_PDB = serverC.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target testClient
+
+
+#############################################
+# Order-only phony target for testClient
+
+build cmake_object_order_depends_target_testClient: phony || CMakeFiles/testClient.dir
+
+build CMakeFiles/testClient.dir/testClient.cpp.o: CXX_COMPILER__testClient_Debug /Users/yunhao/Downloads/usc课程/EE450/project/testClient.cpp || cmake_object_order_depends_target_testClient
+  DEP_FILE = CMakeFiles/testClient.dir/testClient.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
+  OBJECT_DIR = CMakeFiles/testClient.dir
+  OBJECT_FILE_DIR = CMakeFiles/testClient.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target testClient
+
+
+#############################################
+# Link the executable testClient
+
+build testClient: CXX_EXECUTABLE_LINKER__testClient_Debug CMakeFiles/testClient.dir/testClient.cpp.o
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
+  OBJECT_DIR = CMakeFiles/testClient.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = testClient
+  TARGET_PDB = testClient.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -210,7 +291,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug
 
-build all: phony client serverM test serverA
+build all: phony client serverM test serverA serverB serverC testClient
 
 # =============================================================================
 # Built-in targets

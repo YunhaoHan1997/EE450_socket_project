@@ -6,7 +6,10 @@
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="project" targetName="test" />
+      <config projectName="project" targetName="testClient" />
       <config projectName="project" targetName="serverA" />
+      <config projectName="project" targetName="serverB" />
+      <config projectName="project" targetName="serverC" />
       <config projectName="project" targetName="serverM" />
       <config projectName="project" targetName="client" />
     </generated>
@@ -17,16 +20,21 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA can work now">
+    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="Client start receive money">
+      <change afterPath="$PROJECT_DIR$/serverB.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/serverC.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/rules.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/rules.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/block1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/block1.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverM" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/serverM" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,7 +47,14 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/socket.h" root0="SKIP_INSPECTION" />
@@ -70,26 +85,38 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "last_opened_file_path": "/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "structure.view.defaults.are.configured": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cmake-build-debug" />
+      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.serverM">
+  <component name="RunManager" selected="CMake Application.serverC">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="client">
+    <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="Chinmay Oliver 7 " REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="client">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="serverA" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="serverA" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="serverA">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="serverB" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="serverB" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="serverB">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="serverC" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="serverC" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="serverC">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -104,11 +131,19 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="testClient" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="testClient" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="testClient">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="CMake Application.client" />
       <item itemvalue="CMake Application.serverA" />
+      <item itemvalue="CMake Application.serverB" />
+      <item itemvalue="CMake Application.serverC" />
       <item itemvalue="CMake Application.serverM" />
       <item itemvalue="CMake Application.test" />
+      <item itemvalue="CMake Application.testClient" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -122,7 +157,7 @@
       <workItem from="1655366400746" duration="13863000" />
       <workItem from="1655450341728" duration="17285000" />
       <workItem from="1655660444189" duration="18079000" />
-      <workItem from="1656638467719" duration="9836000" />
+      <workItem from="1656638467719" duration="58367000" />
     </task>
     <task id="LOCAL-00001" summary="serverM coding...">
       <created>1655434516754</created>
@@ -194,7 +229,49 @@
       <option name="project" value="LOCAL" />
       <updated>1656696473675</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="serverA can work now">
+      <created>1656701886003</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1656701886003</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Firstly start serverM succ">
+      <created>1656727523033</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1656727523033</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Firstly start serverM succ">
+      <created>1656727576062</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1656727576062</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Firstly start serverM succ">
+      <created>1656746169436</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1656746169436</updated>
+    </task>
+    <task id="LOCAL-00015" summary="ServerM starts to send msg to Client">
+      <created>1656803537083</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1656803537083</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Client start receive money">
+      <created>1656884304635</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1656884304635</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -217,7 +294,31 @@
     <MESSAGE value="serverM and client coding..." />
     <MESSAGE value="serverA coding" />
     <MESSAGE value="serverA can work now" />
-    <option name="LAST_COMMIT_MESSAGE" value="serverA can work now" />
+    <MESSAGE value="Firstly start serverM succ" />
+    <MESSAGE value="ServerM starts to send msg to Client" />
+    <MESSAGE value="Client start receive money" />
+    <option name="LAST_COMMIT_MESSAGE" value="Client start receive money" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/test.cpp</url>
+          <line>45</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/client.cpp</url>
+          <line>118</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/client.cpp</url>
+          <line>157</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

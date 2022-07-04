@@ -1,6 +1,7 @@
 //
-// Created by Yunhao on 6/19/22.
+// Created by Yunhao on 7/3/22.
 //
+
 #include <iostream>
 #include <unistd.h>
 #include <string>
@@ -20,7 +21,7 @@
 
 using namespace std;
 #define LOCAL_HOST "127.0.0.1" // Host address
-#define ServerA_PORT 21161
+#define ServerB_PORT 23161
 #define ServerM_PORT 24161
 #define BUFLEN 1000 // Length of socket stream buffer
 
@@ -34,28 +35,28 @@ struct transaction{
     string amount;
 };
 vector<transaction> transactions;
-struct sockaddr_in m_udp, serverA;
-int serverA_sockfd;
+struct sockaddr_in m_udp, serverB;
+int serverB_sockfd;
 
 void init_UDP(){
     // *** 1. CREATE SOCKET ***
-    if ( (serverA_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){
+    if ( (serverB_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){
         perror("Error creating UDP socket");
         exit(EXIT_FAILURE);
     }
 
     // specify ServerA address
 
-    serverA.sin_family = AF_INET;
+    serverB.sin_family = AF_INET;
     //AWS Port #
-    serverA.sin_port = htons(ServerA_PORT);
+    serverB.sin_port = htons(ServerB_PORT);
     //AWS IP ADDR - INADDR_LOOPBACK refers to localhost ("127.0.0.1")
-    serverA.sin_addr.s_addr = inet_addr(LOCAL_HOST);
+    serverB.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
     // *** 2. BIND SOCKET ***
 
-    if (::bind(serverA_sockfd, (struct sockaddr *) &serverA, sizeof(serverA)) == -1 ){
-        close(serverA_sockfd);
+    if (::bind(serverB_sockfd, (struct sockaddr *) &serverB, sizeof(serverB)) == -1 ){
+        close(serverB_sockfd);
         perror("Error binding UDP socket");
         exit(EXIT_FAILURE);
     }
@@ -122,11 +123,9 @@ string encrypt(string s){
 
 void constructTransactions(){
     string line;
-    std::ifstream transactionFile("block1.txt");
-    cout<<"open file succ"<<endl;
+    std::ifstream transactionFile("block3.txt");
     if(transactionFile.is_open()){
         while(!transactionFile.eof() and getline(transactionFile, line)){
-            cout<<"read file"<<endl;
             string id;
             string name1;
             string name2;
@@ -149,7 +148,7 @@ void constructTransactions(){
 void addTransaction(string id, string name1, string name2, string amount){
     transactions.push_back(transaction{id, name1, name2, amount});
     ofstream write;
-    write.open("block1.txt",ios::app);
+    write.open("block3.txt",ios::app);
     write << id << " " <<encrypt(name1) << " " << encrypt(name2) << " "<< encrypt(amount) << endl;
     write.close();
 
@@ -165,31 +164,31 @@ void recvFromM(){
     cout<<"begin receive"<<endl;
     //    recv trans ID
 
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
-        perror("Error receiving from AWS");
+    if ((recvLen1 = recvfrom(serverB_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
+        perror("Error receiving from M");
         exit(EXIT_FAILURE);
     }
     recv_id[recvLen1] = '\0';
     cout<<"receive id"<<endl;
 
     //    recv name1
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
-        perror("Error receiving from AWS");
+    if ((recvLen1 = recvfrom(serverB_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
+        perror("Error receiving from M");
         exit(EXIT_FAILURE);
     }
     cout<<"receive name1"<<endl;
     recv_name1[recvLen1] = '\0';
 
     //recv name2
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
-        perror("Error receiving from AWS");
+    if ((recvLen1 = recvfrom(serverB_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
+        perror("Error receiving from M");
         exit(EXIT_FAILURE);
     }
     recv_name2[recvLen1] = '\0';
     cout<<"receive name2"<<endl;
 
     //recv amount
-    if ((recvLen1 = recvfrom(serverA_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
+    if ((recvLen1 = recvfrom(serverB_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &m_len)) < 1){
         perror("Error receiving from AWS");
         exit(EXIT_FAILURE);
     }
@@ -203,7 +202,6 @@ void recvFromM(){
 //    cout << "The Server A has received input for finding shortest paths: starting vertex " << recvVertexIndex << " of map " << recvMapID << "." << endl;
 }
 
-//todo: send to M
 void sendToM(){
     char flag[BUFLEN];
     char idBuf[BUFLEN];
@@ -219,7 +217,7 @@ void sendToM(){
         sprintf(name2Buf, "%s", item.name2.c_str());
         sprintf(amountBuf, "%s", item.amount.c_str());
         //send id
-        if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        if ( ( sendLen = sendto(serverB_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message1 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
@@ -228,7 +226,7 @@ void sendToM(){
         memset(idBuf,'\0', sizeof(idBuf));
 
         //send name1
-        if ( ( sendLen = sendto(serverA_sockfd, name1Buf, strlen(name1Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        if ( ( sendLen = sendto(serverB_sockfd, name1Buf, strlen(name1Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message2 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
@@ -237,7 +235,7 @@ void sendToM(){
         memset(name1Buf,'\0', sizeof(name1Buf));
 
         // send name2
-        if ( ( sendLen = sendto(serverA_sockfd, name2Buf, strlen(name2Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        if ( ( sendLen = sendto(serverB_sockfd, name2Buf, strlen(name2Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message3 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
@@ -246,7 +244,7 @@ void sendToM(){
         memset(name2Buf,'\0', sizeof(name2Buf));
 
         //send amount
-        if ( ( sendLen = sendto(serverA_sockfd, amountBuf, strlen(amountBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+        if ( ( sendLen = sendto(serverB_sockfd, amountBuf, strlen(amountBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
             perror("Error sending UDP message4 to MServer from Server A");
             exit(EXIT_FAILURE);
         }
@@ -257,7 +255,7 @@ void sendToM(){
 
     // Send NULL char to signify end of communication
     memset(flag, '\0', sizeof(flag));
-    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+    if ( ( sendLen = sendto(serverB_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
         perror("Error sending UDP message5 to MServer from Server A");
         exit(EXIT_FAILURE);
     }

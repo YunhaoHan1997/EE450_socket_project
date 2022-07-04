@@ -1,0 +1,364 @@
+Index: serverM.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#include <iostream>\n#include <stdio.h>\n#include <stdlib.h>\n#include <unistd.h>\n#include <string>\n#include <cstring>\n#include <sys/types.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <netdb.h>\n#include <arpa/inet.h>\n#include <vector>\n#include <iomanip>\n#include <map>\n\nusing namespace std;\n\n#define LOCAL_HOST \"127.0.0.1\" // Host address\n#define M_UDP_PORT 24161 // AWS port number\n#define M_Client_TCP_PORT 25161 // AWS port number\n#define M_Monitor_TCP_PORT 26161 // AWS port number\n#define ServerA_PORT 21161\n#define ServerB_PORT 22161\n#define ServerC_PORT 23161\n#define MAXDATASIZE 1024 // max number of bytes we can get at once\n#define BACKLOG 10 // max number of connections allowed on the incoming queue\n#define FAIL -1\n#define BUFLEN 1024\n\nchar id[BUFLEN];\nchar name1[BUFLEN];\nchar name2[BUFLEN];\nchar transaction_amount[BUFLEN];\nint recvLen1, sendLen;\n\nstruct transaction{\n    string id;\n    string from;\n    string to;\n    string amount;\n};\n\nvector<transaction> transactions;\nmap<string, int> wallets;\n\n\nstruct sockaddr_in m_tcp_client,m_tcp_monitor, m_udp, client,monitor, serverA, serverB, serverC;\nint m_tcp_client_fd,m_tcp_monitor_fd, m_udp_fd, new_tcp_client_fd, new_tcp_monitor_fd;\n\n// initialize tcp of the Main Server\nvoid init_ClientTCP(){\n\n    // *** 1. CREATE SOCKET ***\n    if ( (m_tcp_client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){\n        perror(\"Error creating TCP socket\");\n        exit(EXIT_FAILURE);\n    }\n    // specify AWS address\n    m_tcp_client.sin_family = AF_INET;\n    //Server Tcp Port #\n    m_tcp_client.sin_port = htons(M_Client_TCP_PORT);\n    //Server IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    m_tcp_client.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    // *** 2. BIND SOCKET ***\n\n    if (::bind(m_tcp_client_fd, (struct sockaddr *) &m_tcp_client, sizeof(m_tcp_client)) == -1 ){\n        close(m_tcp_client_fd);\n        perror(\"Error binding TCP socket\");\n        exit(EXIT_FAILURE);\n    }\n    // *** 3. LISTEN FOR CONNECTIONS ***\n\n    if (listen(m_tcp_client_fd, BACKLOG) < 0){\n        perror(\"listen\");\n        exit(EXIT_FAILURE);\n    }\n}\nvoid init_MonitorTCP(){\n\n    // *** 1. CREATE SOCKET ***\n    if ( (m_tcp_monitor_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){\n        perror(\"Error creating TCP socket\");\n        exit(EXIT_FAILURE);\n    }\n    // specify Server address\n    m_tcp_monitor.sin_family = AF_INET;\n    //Server Tcp Port #\n    m_tcp_monitor.sin_port = htons(M_Monitor_TCP_PORT);\n    //Server IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    m_tcp_monitor.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    // *** 2. BIND SOCKET ***\n\n    if (::bind(m_tcp_monitor_fd, (struct sockaddr *) &m_tcp_monitor, sizeof(m_tcp_monitor)) == -1 ){\n        close(m_tcp_monitor_fd);\n        perror(\"Error binding TCP socket\");\n        exit(EXIT_FAILURE);\n    }\n    // *** 3. LISTEN FOR CONNECTIONS ***\n\n    if (listen(m_tcp_monitor_fd, BACKLOG) < 0){\n        perror(\"listen\");\n        exit(EXIT_FAILURE);\n    }\n}\nvoid init_UDP(){\n    // *** 1. CREATE SOCKET ***\n    if ( (m_udp_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){\n        perror(\"Error creating UDP socket\");\n        exit(EXIT_FAILURE);\n    }\n\n    // specify AWS address\n\n    m_udp.sin_family = AF_INET;\n    //AWS Port #\n    m_udp.sin_port = htons(M_UDP_PORT);\n    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    m_udp.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    // *** 2. BIND SOCKET ***\n\n    if (::bind(m_udp_fd, (struct sockaddr *) &m_udp, sizeof(m_udp)) == -1 ){\n        close(m_udp_fd);\n        perror(\"Error binding UDP socket\");\n        exit(EXIT_FAILURE);\n    }\n    //note: udp does not have listen\n}\n\nvoid acceptFromClient(){\n    //clientlen from CMU class notes\n    socklen_t clientLen = sizeof(client);\n    //int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);\n    if ( (new_tcp_client_fd = accept(m_tcp_client_fd,(struct sockaddr *) &m_tcp_client, &clientLen)) == -1){\n        perror(\"Error accepting socket\");\n        exit(EXIT_FAILURE);\n    }\n}\n\nvoid acceptFromMonitor(){\n    socklen_t clientLen = sizeof(monitor);\n    //int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);\n    if ( (new_tcp_monitor_fd = accept(m_tcp_monitor_fd,(struct sockaddr *) &m_tcp_monitor, &clientLen)) == -1){\n        perror(\"Error accepting socket\");\n        exit(EXIT_FAILURE);\n    }\n}\n\nvoid recvFromClient(){\n    recvLen1 = recv(new_tcp_client_fd, name1, BUFLEN, 0);\n    if (recvLen1 == -1){\n        perror(\"Error receiving message from client\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    name1[recvLen1] = '\\0';\n\n    recvLen1 = recv(new_tcp_client_fd, name2, BUFLEN, 0);\n    if (recvLen1 == -1){\n        perror(\"Error receiving message from client\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    name2[recvLen1] = '\\0';\n\n    recvLen1 = recv(new_tcp_client_fd, transaction_amount, BUFLEN, 0);\n    if (recvLen1 == -1){\n        perror(\"Error receiving message from client\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    transaction_amount[recvLen1] = '\\0';\n}\n\nvoid setServerABC(){\n//    Server A\n    serverA.sin_family = AF_INET;\n    //AWS Port #\n    serverA.sin_port = htons(ServerA_PORT);\n    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    serverA.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n//    Server B\n    serverB.sin_family = AF_INET;\n    //AWS Port #\n    serverB.sin_port = htons(ServerB_PORT);\n    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    serverB.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    // Server c\n    serverC.sin_family = AF_INET;\n    //AWS Port #\n    serverC.sin_port = htons(ServerC_PORT);\n    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    serverC.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    cout << \"set ABC succ\" <<endl;\n}\n\nvoid sendToA(){\n    char a[] = \"abc\";\n    char b[] = \"abc\";\n    char c[] = \"abc\";\n    char d[] = \"abc\";\n\n\n    if ((sendLen = sendto(m_udp_fd, a, strlen(a), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {\n        perror(\"Error sending UDP message to Server A from AWS\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    if ((sendLen = sendto(m_udp_fd, b, strlen(b), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {\n        perror(\"Error sending UDP message to Server A from AWS\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    if ((sendLen = sendto(m_udp_fd, c, strlen(c), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {\n        perror(\"Error sending UDP message to Server A from AWS\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n    if ((sendLen = sendto(m_udp_fd, d, strlen(d), 0, (struct sockaddr *) &serverA, sizeof(struct sockaddr_in))) == -1) {\n        perror(\"Error sending UDP message to Server A from AWS\");\n        close(new_tcp_client_fd);\n        exit(EXIT_FAILURE);\n    }\n\n    cout << \"M send to ServerA succ\" << endl;\n}\n// todo: receive from server ABC\nvoid receiveFromA(){\n\n    char recv_id[BUFLEN];\n    char recv_name1[BUFLEN];\n    char recv_name2[BUFLEN];\n    char recv_amount[BUFLEN];\n    int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving\n\n    socklen_t serverALen = sizeof(serverA);\n    cout << \"receive from server A start\" << endl;\n    while(! recvDone){\n\n        struct transaction temp;\n        cout << \"receive id server A start\" << endl;\n        if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){\n            perror(\"Error receiving message from Server A\");\n            close(new_tcp_client_fd);\n            exit(EXIT_FAILURE);\n        }\n        recv_id[recvLen1] = '\\0';\n        temp.id = string(recv_id);\n        cout << \"receive id server A\" << endl;\n\n        if (recv_id[0] != '\\0'){\n            if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){\n                perror(\"Error receiving message from Server A\");\n                close(new_tcp_client_fd);\n                exit(EXIT_FAILURE);\n            }\n            recv_name1[recvLen1] = '\\0';\n            temp.from = string(recv_name1);\n            cout << \"receive name1 server A\" << endl;\n\n            if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){\n                perror(\"Error receiving message from Server A\");\n                close(new_tcp_client_fd);\n                exit(EXIT_FAILURE);\n            }\n            recv_name2[recvLen1] = '\\0';\n            temp.to = string(recv_name2);\n            cout << \"receive name2 server A\" << endl;\n\n            //receive amount\n            if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){\n                perror(\"Error receiving message from Server A\");\n                close(new_tcp_client_fd);\n                exit(EXIT_FAILURE);\n            }\n            recv_amount[recvLen1] = '\\0';\n            temp.amount = string(recv_amount);\n            cout << \"receive amount server A\" << endl;\n            transactions.push_back(temp);\n        }else{\n            //toggle recvDone\n            recvDone = 1;\n        }\n    }\n\n    cout << \"receive from server A succ\" << endl;\n}\n\nint main(){\n//    init_ClientTCP();\n//    init_MonitorTCP();\n    cout << \"The MServer is up and running.\" << endl;\n    init_UDP();\n\n    setServerABC();\n\n\n\n//    close(new_tcp_client_fd);\n//    close(new_tcp_monitor_fd);\n\n    while(1){\n//        acceptFromClient();\n//        cout << \"acceptFromClient succ\"<<endl;\n//        recvFromClient();\n//        cout << \"recevfrom client succ\"<<endl;\n//        cout << name1 << endl;\n//        cout << name2 << endl;\n//        cout << transaction_amount << endl;\n//\n//        close(new_tcp_client_fd);\n//        close(new_tcp_monitor_fd);\n        sendToA();\n        receiveFromA();\n        for(auto &i : transactions){\n            cout << i.id << i.from << i.to << i.amount <<endl;\n        }\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/serverM.cpp b/serverM.cpp
+--- a/serverM.cpp	(revision b9ad723161f32dea86ef3e49749c5c69b9f5365b)
++++ b/serverM.cpp	(date 1656705759547)
+@@ -110,7 +110,8 @@
+         perror("Error creating UDP socket");
+         exit(EXIT_FAILURE);
+     }
+-
++    memset(&m_udp, 0 ,sizeof (m_udp));
++    memset(&serverA, 0, sizeof(serverA));
+     // specify AWS address
+ 
+     m_udp.sin_family = AF_INET;
+@@ -239,19 +240,23 @@
+     int recvDone = 0; // 0 = not finished receiving, 1 = finished receiving
+ 
+     socklen_t serverALen = sizeof(serverA);
+-    cout << "receive from server A start" << endl;
++    cout << "begin receive from A"<<endl;
+     while(! recvDone){
+ 
+         struct transaction temp;
+-        cout << "receive id server A start" << endl;
+         if ((recvLen1 = recvfrom(m_udp_fd, recv_id, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
+             perror("Error receiving message from Server A");
+             close(new_tcp_client_fd);
+             exit(EXIT_FAILURE);
+         }
+         recv_id[recvLen1] = '\0';
++//        if(recvLen1 == 0){
++//
++//            break;
++//        }
++        cout << "receive len from id is: " << recvLen1<< endl;
+         temp.id = string(recv_id);
+-        cout << "receive id server A" << endl;
++        cout << "receive id from server A is" << temp.id<< endl;
+ 
+         if (recv_id[0] != '\0'){
+             if ((recvLen1 = recvfrom(m_udp_fd, recv_name1, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
+@@ -261,7 +266,7 @@
+             }
+             recv_name1[recvLen1] = '\0';
+             temp.from = string(recv_name1);
+-            cout << "receive name1 server A" << endl;
++            cout << "receive name1 from server A is" <<temp.from<< endl;
+ 
+             if ((recvLen1 = recvfrom(m_udp_fd, recv_name2, BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
+                 perror("Error receiving message from Server A");
+@@ -270,7 +275,7 @@
+             }
+             recv_name2[recvLen1] = '\0';
+             temp.to = string(recv_name2);
+-            cout << "receive name2 server A" << endl;
++            cout << "receive name2 from server A is" << temp.to<< endl;
+ 
+             //receive amount
+             if ((recvLen1 = recvfrom(m_udp_fd,recv_amount , BUFLEN, 0, (struct sockaddr *) &serverA, &serverALen )) < 0){
+@@ -280,11 +285,13 @@
+             }
+             recv_amount[recvLen1] = '\0';
+             temp.amount = string(recv_amount);
+-            cout << "receive amount server A" << endl;
++            cout << "receive amount from server A is"<< temp.amount << endl;
+             transactions.push_back(temp);
+         }else{
+             //toggle recvDone
+             recvDone = 1;
++            cout<<"receive done"<<endl;
++
+         }
+     }
+ 
+@@ -317,9 +324,11 @@
+ //        close(new_tcp_monitor_fd);
+         sendToA();
+         receiveFromA();
+-        for(auto &i : transactions){
+-            cout << i.id << i.from << i.to << i.amount <<endl;
+-        }
++
++
++
++
+     }
++
+ 
+ }
+\ No newline at end of file
+Index: serverA.cpp
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>//\n// Created by Yunhao on 6/19/22.\n//\n#include <iostream>\n#include <unistd.h>\n#include <string>\n#include <cstring>\n#include <sys/types.h>\n#include <sys/socket.h>\n#include <netinet/in.h>\n#include <netdb.h>\n#include <arpa/inet.h>\n#include <fstream>\n#include <vector>\n#include <algorithm>\n#include <iomanip>\n#include <map>\n#include <climits>\n#include <sstream>\n\nusing namespace std;\n#define LOCAL_HOST \"127.0.0.1\" // Host address\n#define ServerA_PORT 21161\n#define BUFLEN 1000 // Length of socket stream buffer\n\nchar recv_id[BUFLEN];\nchar recv_name1[BUFLEN];\nchar recv_name2[BUFLEN];\nchar recv_amount[BUFLEN];\nint recvLen1;\n\nstruct transaction{\n    string id;\n    string name1;\n    string name2;\n    string amount;\n};\nvector<transaction> transactions;\nstruct sockaddr_in m_udp, serverA;\nint serverA_sockfd;\n\nvoid init_UDP(){\n    // *** 1. CREATE SOCKET ***\n    if ( (serverA_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){\n        perror(\"Error creating UDP socket\");\n        exit(EXIT_FAILURE);\n    }\n\n    // specify ServerA address\n\n    serverA.sin_family = AF_INET;\n    //AWS Port #\n    serverA.sin_port = htons(ServerA_PORT);\n    //AWS IP ADDR - INADDR_LOOPBACK refers to localhost (\"127.0.0.1\")\n    serverA.sin_addr.s_addr = inet_addr(LOCAL_HOST);\n\n    // *** 2. BIND SOCKET ***\n\n    if (::bind(serverA_sockfd, (struct sockaddr *) &serverA, sizeof(serverA)) == -1 ){\n        close(serverA_sockfd);\n        perror(\"Error binding UDP socket\");\n        exit(EXIT_FAILURE);\n    }\n}\n\nstring decrypt(string s){\n    for(char & i : s){\n        //for 0 - 9\n        if(int(i) >= 48 && int(i) <= 57){\n            if(int(i) >= 48 && int(i) <= 50){\n                i = char(int(i) + 10 - 3);\n            }else{\n                i = char(int(i) - 3);\n            }\n            //for A-Z\n        }else if(i >= 65 && i <= 90){\n            if(int(i) >= 65 && int(i) <= 67){\n                i = char(int(i) + 10 - 3);\n            }else{\n                i = char(int(i) - 3);\n            }\n            // for a-z\n        }else if(i >= 97 && i <= 122){\n            if(int(i) >= 97 && int(i) <=99){\n                i = char(int(i) + 10 - 3);\n            }else{\n                i = char(int(i) - 3);\n            }\n        }\n    }\n    return s;\n}\n\nvoid constructTransactions(){\n    string line;\n    std::ifstream transactionFile(\"block1.txt\");\n    cout<<\"open file succ\"<<endl;\n    if(transactionFile.is_open()){\n        while(!transactionFile.eof() and getline(transactionFile, line)){\n            cout<<\"read file\"<<endl;\n            string id;\n            string name1;\n            string name2;\n            string amount;\n            stringstream ss;\n            ss << line;\n            ss >> id >>name1 >> name2 >> amount;\n//            cout << name1 << name2 << amount;\n            if(!id.empty() && !name1.empty() && !name2.empty() && !amount.empty()){\n                name1 = decrypt(name1);\n                name2 = decrypt(name2);\n                amount = decrypt(amount);\n                transactions.push_back(transaction{id, name1, name2, amount});\n            }\n\n        }\n    }\n}\n\nvoid addTransaction(string &id, string &name1, string &name2, string &amount){\n    transactions.push_back(transaction{id, name1, name2, amount});\n    ofstream write;\n    write.open(\"block1.txt\",ios::app);\n    write << id << \" \" <<name1 << \" \" << name2 << \" \"<< amount << endl;\n    write.close();\n\n}\n\nvoid recvFromM(){\n    socklen_t awsLen = sizeof(m_udp);\n    cout<<\"begin receive\"<<endl;\n    //    recv trans ID\n\n    if ((recvLen1 = recvfrom(serverA_sockfd, recv_id, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){\n        perror(\"Error receiving from AWS\");\n        exit(EXIT_FAILURE);\n    }\n    cout<<\"receive id\"<<endl;\n\n    //    recv name1\n    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name1, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){\n        perror(\"Error receiving from AWS\");\n        exit(EXIT_FAILURE);\n    }\n    cout<<\"receive name1\"<<endl;\n\n    //recv name2\n    if ((recvLen1 = recvfrom(serverA_sockfd, recv_name2, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){\n        perror(\"Error receiving from AWS\");\n        exit(EXIT_FAILURE);\n    }\n    cout<<\"receive name2\"<<endl;\n\n    //recv amount\n    if ((recvLen1 = recvfrom(serverA_sockfd, recv_amount, BUFLEN, 0, (struct sockaddr *) &m_udp, &awsLen)) < 1){\n        perror(\"Error receiving from AWS\");\n        exit(EXIT_FAILURE);\n    }\n    cout<<\"receive amount\"<<endl;\n\n//    cout << \"serverA receive from M succ\" << endl;\n\n//    cout << \"The Server A has received input for finding shortest paths: starting vertex \" << recvVertexIndex << \" of map \" << recvMapID << \".\" << endl;\n}\n\n//todo: send to M\nvoid sendToM(){\n    char flag[BUFLEN];\n    char idBuf[BUFLEN];\n    char name1Buf[BUFLEN];\n    char name2Buf[BUFLEN];\n    char amountBuf[BUFLEN];\n    int sendLen;\n    memset(flag, '\\0', sizeof(flag));\n    cout << \"begin send to M\" << endl;\n    for(const transaction& item: transactions){\n        cout << 111<<endl;\n        sprintf(idBuf, \"%s\",item.id.c_str());\n        sprintf(name1Buf, \"%s\", item.name1.c_str());\n        sprintf(name2Buf, \"%s\", item.name2.c_str());\n        sprintf(amountBuf, \"%s\", item.amount.c_str());\n        cout << 222<<endl;\n        //send id\n        if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {\n            perror(\"Error sending UDP message1 to MServer from Server A\");\n            exit(EXIT_FAILURE);\n        }\n        cout << \"send id to M\" << endl;\n        // erase idBuf\n        memset(idBuf,'\\0', sizeof(idBuf));\n\n        //send name1\n        if ( ( sendLen = sendto(serverA_sockfd, name1Buf, strlen(name1Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {\n            perror(\"Error sending UDP message2 to MServer from Server A\");\n            exit(EXIT_FAILURE);\n        }\n        cout << \"send name1 to M\" << endl;\n        // erase name1Buf\n        memset(name1Buf,'\\0', sizeof(name1Buf));\n\n        // send name2\n        if ( ( sendLen = sendto(serverA_sockfd, name2Buf, strlen(name2Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {\n            perror(\"Error sending UDP message3 to MServer from Server A\");\n            exit(EXIT_FAILURE);\n        }\n        cout << \"send name2 to M\" << endl;\n        // erase name2Buf\n        memset(name2Buf,'\\0', sizeof(name2Buf));\n\n        //send amount\n        if ( ( sendLen = sendto(serverA_sockfd, amountBuf, strlen(amountBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {\n            perror(\"Error sending UDP message4 to MServer from Server A\");\n            exit(EXIT_FAILURE);\n        }\n        cout << \"send amount to M\" << endl;\n        // erase amountBuf\n        memset(amountBuf,'\\0', sizeof(amountBuf));\n    }\n\n    // Send NULL char to signify end of communication\n    //todo here has error\n//    memset(flag, '\\0', sizeof(flag));\n//    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {\n//        perror(\"Error sending UDP message5 to MServer from Server A\");\n//        exit(EXIT_FAILURE);\n//    }\n}\n\nint main(){\n    init_UDP();\n    cout << \"init udp succ\" << endl;\n    constructTransactions();\n    cout << \"The size of transactions is: \" <<transactions.size()<<endl;\n//    cout << \"transacitons succe\" <<endl;\n    while(1){\n        recvFromM();\n        sendToM();\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/serverA.cpp b/serverA.cpp
+--- a/serverA.cpp	(revision b9ad723161f32dea86ef3e49749c5c69b9f5365b)
++++ b/serverA.cpp	(date 1656705759552)
+@@ -47,7 +47,7 @@
+     }
+ 
+     // specify ServerA address
+-
++    memset(&serverA, 0, sizeof (serverA));
+     serverA.sin_family = AF_INET;
+     //AWS Port #
+     serverA.sin_port = htons(ServerA_PORT);
+@@ -174,14 +174,12 @@
+     memset(flag, '\0', sizeof(flag));
+     cout << "begin send to M" << endl;
+     for(const transaction& item: transactions){
+-        cout << 111<<endl;
+         sprintf(idBuf, "%s",item.id.c_str());
+         sprintf(name1Buf, "%s", item.name1.c_str());
+         sprintf(name2Buf, "%s", item.name2.c_str());
+         sprintf(amountBuf, "%s", item.amount.c_str());
+-        cout << 222<<endl;
+         //send id
+-        if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
++        if ( ( sendLen = sendto(serverA_sockfd, idBuf, strlen(idBuf), 0, (struct sockaddr *) &serverA, (socklen_t)sizeof serverA)) == -1) {
+             perror("Error sending UDP message1 to MServer from Server A");
+             exit(EXIT_FAILURE);
+         }
+@@ -190,7 +188,7 @@
+         memset(idBuf,'\0', sizeof(idBuf));
+ 
+         //send name1
+-        if ( ( sendLen = sendto(serverA_sockfd, name1Buf, strlen(name1Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
++        if ( ( sendLen = sendto(serverA_sockfd, name1Buf, strlen(name1Buf), 0, (struct sockaddr *) &serverA, (socklen_t)sizeof serverA)) == -1) {
+             perror("Error sending UDP message2 to MServer from Server A");
+             exit(EXIT_FAILURE);
+         }
+@@ -199,7 +197,7 @@
+         memset(name1Buf,'\0', sizeof(name1Buf));
+ 
+         // send name2
+-        if ( ( sendLen = sendto(serverA_sockfd, name2Buf, strlen(name2Buf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
++        if ( ( sendLen = sendto(serverA_sockfd, name2Buf, strlen(name2Buf), 0, (struct sockaddr *) &serverA, (socklen_t)sizeof serverA)) == -1) {
+             perror("Error sending UDP message3 to MServer from Server A");
+             exit(EXIT_FAILURE);
+         }
+@@ -208,7 +206,7 @@
+         memset(name2Buf,'\0', sizeof(name2Buf));
+ 
+         //send amount
+-        if ( ( sendLen = sendto(serverA_sockfd, amountBuf, strlen(amountBuf), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
++        if ( ( sendLen = sendto(serverA_sockfd, amountBuf, strlen(amountBuf), 0, (struct sockaddr *) &serverA, (socklen_t)sizeof serverA)) == -1) {
+             perror("Error sending UDP message4 to MServer from Server A");
+             exit(EXIT_FAILURE);
+         }
+@@ -219,11 +217,11 @@
+ 
+     // Send NULL char to signify end of communication
+     //todo here has error
+-//    memset(flag, '\0', sizeof(flag));
+-//    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &m_udp, sizeof(struct sockaddr_in))) == -1) {
+-//        perror("Error sending UDP message5 to MServer from Server A");
+-//        exit(EXIT_FAILURE);
+-//    }
++    memset(flag, '\0', sizeof(flag));
++    if ( ( sendLen = sendto(serverA_sockfd, flag, strlen(flag), 0, (struct sockaddr *) &serverA, (socklen_t)sizeof serverA)) == -1) {
++        perror("Error sending UDP message5 to MServer from Server A");
++        exit(EXIT_FAILURE);
++    }
+ }
+ 
+ int main(){
+@@ -232,7 +230,10 @@
+     constructTransactions();
+     cout << "The size of transactions is: " <<transactions.size()<<endl;
+ //    cout << "transacitons succe" <<endl;
++    socklen_t awsLen = sizeof(m_udp);
++
+     while(1){
++
+         recvFromM();
+         sendToM();
+     }
+Index: cmake-build-debug/.ninja_log
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># ninja log v5\n290\t331\t1655589158435236993\tserverM\t3396a0f71b7e34f\n1\t251\t1655588970633006575\tCMakeFiles/project.dir/client.cpp.o\t6808d860cec24108\n0\t224\t1655589185918423670\tCMakeFiles/client.dir/client.cpp.o\t17061b03621b3c32\n1\t282\t1655588970663165894\tCMakeFiles/project.dir/serverM.cpp.o\t9f9a9bd584dcfed9\n193\t221\t1655592929476178206\ttest\t1be9bbac522c7f29\n0\t290\t1655589158393166755\tCMakeFiles/serverM.dir/serverM.cpp.o\t1662dde623b3a596\n224\t254\t1655589185950036026\tclient\t69f17440fd67a81c\n1\t193\t1655592929447811781\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n0\t425\t1655672051231031664\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n426\t519\t1655672051326394303\tserverA\t46d9d4e04ec16055\n1\t426\t1655672232216501938\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n426\t465\t1655672232257695485\tserverA\t46d9d4e04ec16055\n1\t469\t1655673781891265551\tCMakeFiles/client.dir/client.cpp.o\t17061b03621b3c32\n2\t501\t1655673781924610403\tCMakeFiles/client.dir/test.cpp.o\t7ecfa604a66aa568\n2\t733\t1655673782155735485\tCMakeFiles/client.dir/serverA.cpp.o\t1b4b0a3b0b78174b\n2\t254\t1655673795863375786\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n255\t291\t1655673795902689343\ttest\t1be9bbac522c7f29\n0\t209\t1655673806712739199\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n209\t239\t1655673806743562678\ttest\t1be9bbac522c7f29\n1\t309\t1655673924658944906\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n309\t346\t1655673924697814384\ttest\t1be9bbac522c7f29\n1\t313\t1655674412538210131\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n313\t350\t1655674412577671391\ttest\t1be9bbac522c7f29\n2\t360\t1655674574254749802\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n360\t441\t1655674574338916908\tserverA\t46d9d4e04ec16055\n1\t423\t1655674670982318222\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n423\t460\t1655674671021916064\tserverA\t46d9d4e04ec16055\n1\t226\t1655674719872150989\tCMakeFiles/test.dir/test.cpp.o\tacec4b1de69f6f52\n226\t256\t1655674719903421043\ttest\t1be9bbac522c7f29\n2\t427\t1655674740591340551\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n427\t459\t1655674740624892112\tserverA\t46d9d4e04ec16055\n4\t510\t1655676681606662592\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n510\t551\t1655676681650759854\tserverA\t46d9d4e04ec16055\n1\t391\t1655676742020530191\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n391\t443\t1655676742079804832\tserverA\t46d9d4e04ec16055\n1\t485\t1655676757423013441\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n485\t523\t1655676757463487201\tserverA\t46d9d4e04ec16055\n1\t370\t1655676782841568442\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n370\t408\t1655676782881285828\tserverA\t46d9d4e04ec16055\n1\t521\t1655677083926441269\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n521\t565\t1655677083972798660\tserverA\t46d9d4e04ec16055\n1\t347\t1656662282779147344\tCMakeFiles/serverA.dir/serverA.cpp.o\ta7226e59e87ce5bf\n347\t379\t1656662282813625704\tserverA\t46d9d4e04ec16055\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cmake-build-debug/.ninja_log b/cmake-build-debug/.ninja_log
+--- a/cmake-build-debug/.ninja_log	(revision b9ad723161f32dea86ef3e49749c5c69b9f5365b)
++++ b/cmake-build-debug/.ninja_log	(date 1656705765005)
+@@ -42,3 +42,55 @@
+ 521	565	1655677083972798660	serverA	46d9d4e04ec16055
+ 1	347	1656662282779147344	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
+ 347	379	1656662282813625704	serverA	46d9d4e04ec16055
++2	446	1656700227801737093	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++446	484	1656700227842690651	serverA	46d9d4e04ec16055
++1	278	1656700246443213886	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++278	309	1656700246476769577	serverM	3396a0f71b7e34f
++3	544	1656701458437558619	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++544	597	1656701458493351210	serverA	46d9d4e04ec16055
++1	306	1656701619760345329	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++306	345	1656701619801758055	serverM	3396a0f71b7e34f
++0	282	1656701697791319200	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++282	316	1656701697826196700	serverM	3396a0f71b7e34f
++1	376	1656702214915244868	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++376	418	1656702214959192085	serverM	3396a0f71b7e34f
++1	355	1656702225872871442	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++355	390	1656702225909579019	serverA	46d9d4e04ec16055
++1	283	1656702278217830969	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++283	314	1656702278250929350	serverM	3396a0f71b7e34f
++2	351	1656702376817218912	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++351	384	1656702376852063454	serverA	46d9d4e04ec16055
++1	269	1656702432134941171	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++269	300	1656702432167868928	serverM	3396a0f71b7e34f
++1	271	1656702477378279556	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++271	302	1656702477411136688	serverM	3396a0f71b7e34f
++1	341	1656702495787286014	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++342	373	1656702495821016143	serverA	46d9d4e04ec16055
++1	345	1656702508856537124	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++345	378	1656702508890372252	serverA	46d9d4e04ec16055
++1	376	1656703004978367610	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++376	416	1656703005020619412	serverM	3396a0f71b7e34f
++1	332	1656703007325328285	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++332	361	1656703007356441892	serverA	46d9d4e04ec16055
++1	340	1656703018994171814	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++340	371	1656703019027705358	serverA	46d9d4e04ec16055
++1	370	1656703278818378571	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++370	405	1656703278855565791	serverA	46d9d4e04ec16055
++1	452	1656704410257638283	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++452	500	1656704410308748916	serverM	3396a0f71b7e34f
++1	342	1656704431423124937	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++342	374	1656704431456586227	serverA	46d9d4e04ec16055
++1	450	1656704768054994438	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++450	489	1656704768096330806	serverA	46d9d4e04ec16055
++1	353	1656704904135737632	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++353	387	1656704904171190358	serverA	46d9d4e04ec16055
++2	451	1656705457015599305	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++451	490	1656705457058033078	serverA	46d9d4e04ec16055
++0	345	1656705662605795104	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++345	377	1656705662640110426	serverA	46d9d4e04ec16055
++1	277	1656705711981365740	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++278	308	1656705712016030392	serverM	3396a0f71b7e34f
++1	359	1656705760032135478	CMakeFiles/serverA.dir/serverA.cpp.o	a7226e59e87ce5bf
++360	399	1656705760073664344	serverA	46d9d4e04ec16055
++1	250	1656705764975035956	CMakeFiles/serverM.dir/serverM.cpp.o	1662dde623b3a596
++250	278	1656705765005048786	serverM	3396a0f71b7e34f
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"CMakeReloadState\">\n    <option name=\"reloaded\" value=\"true\" />\n  </component>\n  <component name=\"CMakeRunConfigurationManager\">\n    <generated>\n      <config projectName=\"project\" targetName=\"test\" />\n      <config projectName=\"project\" targetName=\"serverA\" />\n      <config projectName=\"project\" targetName=\"serverM\" />\n      <config projectName=\"project\" targetName=\"client\" />\n    </generated>\n  </component>\n  <component name=\"CMakeSettings\">\n    <configurations>\n      <configuration PROFILE_NAME=\"Debug\" ENABLED=\"true\" CONFIG_NAME=\"Debug\" />\n    </configurations>\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"bc06f6b1-e35f-4ce7-a0ff-899339738945\" name=\"Changes\" comment=\"serverA coding\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/block1.txt\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/block1.txt\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/cmake-build-debug/.ninja_deps\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cmake-build-debug/.ninja_deps\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/cmake-build-debug/.ninja_log\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cmake-build-debug/.ninja_log\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/serverA\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/serverA\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/serverA.cpp\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/serverA.cpp\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ClangdSettings\">\n    <option name=\"formatViaClangd\" value=\"false\" />\n  </component>\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"CMakeBuildProfile:Debug\" />\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectApplicationVersion\">\n    <option name=\"ide\" value=\"CLion\" />\n    <option name=\"majorVersion\" value=\"2022\" />\n    <option name=\"minorVersion\" value=\"1.1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"2AeO5A8GKkRjOVfBPXl98rMy0wE\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"ASKED_ADD_EXTERNAL_FILES\": \"true\",\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"RunOnceActivity.cidr.known.project.marker\": \"true\",\n    \"WebServerToolWindowFactoryState\": \"false\",\n    \"cf.first.check.clang-format\": \"false\",\n    \"cidr.known.project.marker\": \"true\",\n    \"last_opened_file_path\": \"/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug\",\n    \"settings.editor.selected.configurable\": \"preferences.keymap\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/cmake-build-debug\" />\n    </key>\n  </component>\n  <component name=\"RunManager\" selected=\"CMake Application.serverA\">\n    <configuration default=\"true\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" PASS_PARENT_ENVS_2=\"true\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"client\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" PASS_PARENT_ENVS_2=\"true\" PROJECT_NAME=\"project\" TARGET_NAME=\"client\" CONFIG_NAME=\"Debug\" RUN_TARGET_PROJECT_NAME=\"project\" RUN_TARGET_NAME=\"client\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"serverA\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" PASS_PARENT_ENVS_2=\"true\" PROJECT_NAME=\"project\" TARGET_NAME=\"serverA\" CONFIG_NAME=\"Debug\" RUN_TARGET_PROJECT_NAME=\"project\" RUN_TARGET_NAME=\"serverA\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"serverM\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" PASS_PARENT_ENVS_2=\"true\" PROJECT_NAME=\"project\" TARGET_NAME=\"serverM\" CONFIG_NAME=\"Debug\" RUN_TARGET_PROJECT_NAME=\"project\" RUN_TARGET_NAME=\"serverM\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"test\" type=\"CMakeRunConfiguration\" factoryName=\"Application\" REDIRECT_INPUT=\"false\" ELEVATE=\"false\" USE_EXTERNAL_CONSOLE=\"false\" PASS_PARENT_ENVS_2=\"true\" PROJECT_NAME=\"project\" TARGET_NAME=\"test\" CONFIG_NAME=\"Debug\" RUN_TARGET_PROJECT_NAME=\"project\" RUN_TARGET_NAME=\"test\">\n      <method v=\"2\">\n        <option name=\"com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <list>\n      <item itemvalue=\"CMake Application.client\" />\n      <item itemvalue=\"CMake Application.serverA\" />\n      <item itemvalue=\"CMake Application.serverM\" />\n      <item itemvalue=\"CMake Application.test\" />\n    </list>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"bc06f6b1-e35f-4ce7-a0ff-899339738945\" name=\"Changes\" comment=\"\" />\n      <created>1655366399065</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1655366399065</updated>\n      <workItem from=\"1655366400746\" duration=\"13863000\" />\n      <workItem from=\"1655450341728\" duration=\"17285000\" />\n      <workItem from=\"1655660444189\" duration=\"18079000\" />\n      <workItem from=\"1656638467719\" duration=\"6079000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"serverM coding...\">\n      <created>1655434516754</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655434516754</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"serverM coding...\">\n      <created>1655510357333</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655510357333</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"serverM coding...\">\n      <created>1655587939444</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655587939444</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"serverM and client coding...\">\n      <created>1655593546402</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655593546402</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"serverM and client coding...\">\n      <created>1655660896980</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655660896980</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"serverA coding\">\n      <created>1655669101561</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655669101561</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"serverA coding\">\n      <created>1655679478317</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1655679478317</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"serverA coding\">\n      <created>1656638480375</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1656638480375</updated>\n    </task>\n    <task id=\"LOCAL-00009\" summary=\"serverA coding\">\n      <created>1656657919407</created>\n      <option name=\"number\" value=\"00009\" />\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1656657919407</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"10\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\n    <MESSAGE value=\"serverM coding...\" />\n    <MESSAGE value=\"serverM and client coding...\" />\n    <MESSAGE value=\"serverA coding\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"serverA coding\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision b9ad723161f32dea86ef3e49749c5c69b9f5365b)
++++ b/.idea/workspace.xml	(date 1656705561625)
+@@ -17,14 +17,17 @@
+     </configurations>
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA coding">
++    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="serverA can work now">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/block1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/block1.txt" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverA.dir/serverA.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverA.dir/serverA.cpp.o" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverA" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverM" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -37,6 +40,9 @@
+   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
++  <component name="HighlightingSettingsPerFile">
++    <setting file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/sys/socket.h" root0="SKIP_INSPECTION" />
+   </component>
+   <component name="MarkdownSettingsMigration">
+     <option name="stateVersion" value="1" />
+@@ -64,7 +70,7 @@
+     "cf.first.check.clang-format": "false",
+     "cidr.known.project.marker": "true",
+     "last_opened_file_path": "/Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug",
+-    "settings.editor.selected.configurable": "preferences.keymap"
++    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
+   }
+ }]]></component>
+   <component name="RecentsManager">
+@@ -116,7 +122,7 @@
+       <workItem from="1655366400746" duration="13863000" />
+       <workItem from="1655450341728" duration="17285000" />
+       <workItem from="1655660444189" duration="18079000" />
+-      <workItem from="1656638467719" duration="6079000" />
++      <workItem from="1656638467719" duration="14166000" />
+     </task>
+     <task id="LOCAL-00001" summary="serverM coding...">
+       <created>1655434516754</created>
+@@ -181,7 +187,21 @@
+       <option name="project" value="LOCAL" />
+       <updated>1656657919407</updated>
+     </task>
+-    <option name="localTasksCounter" value="10" />
++    <task id="LOCAL-00010" summary="serverA can work now">
++      <created>1656696473675</created>
++      <option name="number" value="00010" />
++      <option name="presentableId" value="LOCAL-00010" />
++      <option name="project" value="LOCAL" />
++      <updated>1656696473675</updated>
++    </task>
++    <task id="LOCAL-00011" summary="serverA can work now">
++      <created>1656701886003</created>
++      <option name="number" value="00011" />
++      <option name="presentableId" value="LOCAL-00011" />
++      <option name="project" value="LOCAL" />
++      <updated>1656701886003</updated>
++    </task>
++    <option name="localTasksCounter" value="12" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -203,6 +223,11 @@
+     <MESSAGE value="serverM coding..." />
+     <MESSAGE value="serverM and client coding..." />
+     <MESSAGE value="serverA coding" />
+-    <option name="LAST_COMMIT_MESSAGE" value="serverA coding" />
++    <MESSAGE value="serverA can work now" />
++    <option name="LAST_COMMIT_MESSAGE" value="serverA can work now" />
++  </component>
++  <component name="XSLT-Support.FileAssociations.UIState">
++    <expand />
++    <select />
+   </component>
+ </project>
+\ No newline at end of file
+Index: cmake-build-debug/Testing/Temporary/LastTest.log
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>Start testing: Jul 01 00:58 PDT\n----------------------------------------------------------\nEnd testing: Jul 01 00:58 PDT\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/cmake-build-debug/Testing/Temporary/LastTest.log b/cmake-build-debug/Testing/Temporary/LastTest.log
+--- a/cmake-build-debug/Testing/Temporary/LastTest.log	(revision b9ad723161f32dea86ef3e49749c5c69b9f5365b)
++++ b/cmake-build-debug/Testing/Temporary/LastTest.log	(date 1656705765039)
+@@ -1,3 +1,3 @@
+-Start testing: Jul 01 00:58 PDT
++Start testing: Jul 01 13:02 PDT
+ ----------------------------------------------------------
+-End testing: Jul 01 00:58 PDT
++End testing: Jul 01 13:02 PDT
