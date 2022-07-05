@@ -139,7 +139,7 @@ void receiveTransaction(){
             recvDone = 1;
         }
     }
-    cout<<"recv succ"<<endl;
+    cout<<"Successfully received a sorted list of transactions from the main server."<<endl;
     buildtxt(transactions);
 }
 

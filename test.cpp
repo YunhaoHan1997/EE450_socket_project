@@ -51,14 +51,8 @@ struct ComputeRequestInfo
 vector<transaction> transactions;
 
 int main() {
-    char recv_buf1[1024];
-    ComputeRequestInfo input_msg;
-    input_msg.map_id = 1;
-    input_msg.src_vertex_idx = 10;
-    input_msg.file_size = (long long)100;
-//    memset(recv_buf1, 0, 1024);
-    recv_buf1[0] = '\0';
-//    memcpy(recv_buf1, &input_msg, sizeof (input_msg));
-    cout<<(recv_buf1[0] == '\0')<<endl;
+    srand((unsigned)time(NULL));
+    int random = (rand() % (3-1+1))+1;
+    cout<<random;
 
 }

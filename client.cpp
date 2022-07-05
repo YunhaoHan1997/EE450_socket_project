@@ -185,9 +185,22 @@ void show(RequestInfo &requestInfo,ResponseInfo &responseInfo){
             cout<<"The current balance of "<<requestInfo.name1<< " is : "<< responseInfo.amount<<" txcoins."<<endl;
             break;
         }
-        default:
-            cout<<"haha"<<endl;
+        case 3:
+            cout << "Unable to proceed with the transaction as "<<requestInfo.name1<<" is not part of the network."<< endl;
             break;
+        case 4:{
+            cout << "Unable to proceed with the transaction as "<<requestInfo.name2<<" is not part of the network."<< endl;
+            break;
+        }
+        case 5:{
+            cout << "Unable to proceed with the transaction as "<<requestInfo.name1<<" and "<< requestInfo.name2<<" are not part of the network."<< endl;
+            break;
+        }
+        default:{
+            cout<< requestInfo.name1<<" was unable to transfer " <<requestInfo.amount<< " txcoins to "<<requestInfo.name2<<" because of insufficient balance."<<endl;
+            recvMoneyFromM();
+            cout<<"The current balance of "<<requestInfo.name1<< " is : "<< responseInfo.amount<<" txcoins."<<endl;
+        }
     }
 }
 
@@ -282,11 +295,9 @@ int main(int argc, char * argv[]){
         strcpy(request.name1, argv[1]);
         request.name2[0] = '\0';
         request.amount = 0;
-        char send_buf[1024];
-        memset(send_buf, 0, 1024);
-        memcpy(send_buf, &request, sizeof(request));
+
         memcpy(&temp_request, &request, sizeof (request));
-        if(send(m_tcp_sockfd, send_buf, sizeof (send_buf), 0) == -1){
+        if(send(m_tcp_sockfd, &request, sizeof (request), 0) == -1){
             perror("Message Send Error");
             close(m_tcp_sockfd);
             exit(1);
@@ -310,18 +321,16 @@ int main(int argc, char * argv[]){
         }
         strcpy(request.name1, argv[1]);
         strcpy(request.name2, argv[2]);
-//        strncpy(request.name1, argv[1], sizeof (argv[1]));
-//        strncpy(request.name2, argv[2], sizeof (argv[2]));
+
         request.amount = stoi(argv[3]);
-//        char send_buf[1024];
-//        memset(send_buf, 0, 1024);
-//        memcpy(send_buf, &request, sizeof(send_buf));
-//        memcpy(&temp_request, &request, sizeof (request));
+
+        memcpy(&temp_request, &request, sizeof (request));
         if(send(m_tcp_sockfd, &request, sizeof (request), 0) == -1){
             perror("Message Send Error");
             close(m_tcp_sockfd);
             exit(1);
         }
+        cout<< request.name1 <<" has requested to transfer "<< request.amount<<" txcoins to "<<request.name2<<endl;
     }
     char recv_buf[1024];
     memset(recv_buf, 'z', 1024);
@@ -333,7 +342,7 @@ int main(int argc, char * argv[]){
     memset(&response, 0, sizeof response);
     memcpy(&response, recv_buf, sizeof response);
 
-    show(temp_request,response);
+    show(request,response);
     close(client_sockfd);
     return 0;
 }

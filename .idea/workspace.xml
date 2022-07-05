@@ -22,26 +22,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="Client show correct message in terminal.">
-      <change afterPath="$PROJECT_DIR$/monitor" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/monitor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/client.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/rules.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/rules.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/serverM.dir/serverM.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/test.dir/test.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/test.dir/test.cpp.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/block1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/block1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/block2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/block2.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/block3.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/block3.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/serverM" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/test" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/serverM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverM.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test.cpp" afterDir="false" />
     </list>
@@ -103,13 +97,13 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.client">
+  <component name="RunManager" selected="CMake Application.serverM">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="Chinmai" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="client">
+    <configuration name="client" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="Martin Oliver 20" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="project" TARGET_NAME="client" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="project" RUN_TARGET_NAME="client">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -292,7 +286,14 @@
       <option name="project" value="LOCAL" />
       <updated>1656979034270</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Client show correct message in terminal.">
+      <created>1657052927484</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1657052927484</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,13 +327,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/client.cpp</url>
-          <line>319</line>
-          <option name="timeStamp" value="80" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/serverM.cpp</url>
-          <line>596</line>
-          <option name="timeStamp" value="84" />
+          <line>173</line>
+          <option name="timeStamp" value="85" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

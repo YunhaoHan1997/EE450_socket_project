@@ -661,7 +661,7 @@ void select_Client(){
         if(wallets.find(string(request.name1)) != wallets.end() && wallets.find(string(request.name2)) != wallets.end()){
             //insufficient
             if(wallets.find(request.name1)->second - request.amount < 0){
-                sendToClient(6,0);
+                sendToClient(6,wallets.find(request.name1)->second);
             }else{
                 transactions.push_back({to_string(transactions.size() + 1), request.name1, request.name2, to_string(request.amount)});
                 build_wallets();
