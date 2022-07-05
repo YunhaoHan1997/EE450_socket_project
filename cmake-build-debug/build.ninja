@@ -257,6 +257,37 @@ build testClient: CXX_EXECUTABLE_LINKER__testClient_Debug CMakeFiles/testClient.
   TARGET_FILE = testClient
   TARGET_PDB = testClient.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target monitor
+
+
+#############################################
+# Order-only phony target for monitor
+
+build cmake_object_order_depends_target_monitor: phony || CMakeFiles/monitor.dir
+
+build CMakeFiles/monitor.dir/monitor.cpp.o: CXX_COMPILER__monitor_Debug /Users/yunhao/Downloads/usc课程/EE450/project/monitor.cpp || cmake_object_order_depends_target_monitor
+  DEP_FILE = CMakeFiles/monitor.dir/monitor.cpp.o.d
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0 -std=gnu++11
+  OBJECT_DIR = CMakeFiles/monitor.dir
+  OBJECT_FILE_DIR = CMakeFiles/monitor.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target monitor
+
+
+#############################################
+# Link the executable monitor
+
+build monitor: CXX_EXECUTABLE_LINKER__monitor_Debug CMakeFiles/monitor.dir/monitor.cpp.o
+  FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -mmacosx-version-min=12.0
+  OBJECT_DIR = CMakeFiles/monitor.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = monitor
+  TARGET_PDB = monitor.dbg
+
 
 #############################################
 # Utility command for edit_cache
@@ -291,7 +322,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Folder: /Users/yunhao/Downloads/usc课程/EE450/project/cmake-build-debug
 
-build all: phony client serverM test serverA serverB serverC testClient
+build all: phony client serverM test serverA serverB serverC testClient monitor
 
 # =============================================================================
 # Built-in targets

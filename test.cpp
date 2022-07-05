@@ -41,11 +41,24 @@ struct transaction{
     string to;
     string amount;
 };
+struct ComputeRequestInfo
+{
+    int			map_id;
+    int			src_vertex_idx;
+    long long	file_size;
+};
 
 vector<transaction> transactions;
 
-
 int main() {
-    char a[3] = "12";
-    cout << a<<endl;
+    char recv_buf1[1024];
+    ComputeRequestInfo input_msg;
+    input_msg.map_id = 1;
+    input_msg.src_vertex_idx = 10;
+    input_msg.file_size = (long long)100;
+//    memset(recv_buf1, 0, 1024);
+    recv_buf1[0] = '\0';
+//    memcpy(recv_buf1, &input_msg, sizeof (input_msg));
+    cout<<(recv_buf1[0] == '\0')<<endl;
+
 }
