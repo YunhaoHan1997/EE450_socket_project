@@ -13,7 +13,9 @@
   - [serverA/B/C](#serverabc)
   - [client](#client)
   - [monitor](#monitor)
+- [Format of the messages](#format-of-the-messages)
 - [Idiosyncrasy](#idiosyncrasy)
+- [Reused Code](#reused-code)
 
 <br>  
 
@@ -88,7 +90,31 @@ Monitor rquests to serverM, it gets all transactions and stored them into txchai
 Then it exit.  
 <br>
 
+# Format of the messages  
+|  From to          |  |
+|  ----  | ----  |
+| client to serverM  | name1, name2, amount|
+||name2 and amount can be NULL
+| serverM to client  | flag, amount |
+||   0 means check succ
+||     1 means check but not exist
+||     2 means transfer success
+||     3 means name1 not exist
+||     4 means name2 not exist
+||     5 means neither name1 nor name2 exist
+||     6 means name1 insufficient
+|serverA/B/C to serverM| name1, name2, amount|
+|serverM to serverA/B/C| id, name1, name2, amount|
+
+<br>
+
 # Idiosyncrasy
 
 1. Input check, if there is any issue with *argv in client or monitor, it will exit, but the server will still run.
-2. The transactions are stored in serverM, serverA/B/C will only send all transactions once.
+2. The transactions are stored in serverM, serverA/B/C will only send all transactions once.  
+   
+<br>
+
+# Reused Code  
+
+I referenced Beej Guide Network Programming to write some functions like sendto, accept.etc and I have them commented in my code.

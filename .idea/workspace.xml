@@ -21,29 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="Client show correct message in terminal.">
-      <change afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/serverB" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/serverC" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test" afterDir="false" />
+    <list default="true" id="bc06f6b1-e35f-4ce7-a0ff-899339738945" name="Changes" comment="final to debug in linux">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/client.dir/client.cpp.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/block1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/block2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/block3.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitor" beforeDir="false" afterPath="$PROJECT_DIR$/monitor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA" beforeDir="false" afterPath="$PROJECT_DIR$/serverA" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverA.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverC.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/serverC.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverM" beforeDir="false" afterPath="$PROJECT_DIR$/serverM" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +149,8 @@
       <workItem from="1655660444189" duration="18079000" />
       <workItem from="1656638467719" duration="58367000" />
       <workItem from="1657060559975" duration="2386000" />
-      <workItem from="1657067545177" duration="750000" />
+      <workItem from="1657067545177" duration="1578000" />
+      <workItem from="1657070286427" duration="712000" />
     </task>
     <task id="LOCAL-00001" summary="serverM coding...">
       <created>1655434516754</created>
@@ -303,7 +285,14 @@
       <option name="project" value="LOCAL" />
       <updated>1657057276459</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="final to debug in linux">
+      <created>1657068525847</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1657068525847</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -330,7 +319,8 @@
     <MESSAGE value="ServerM starts to send msg to Client" />
     <MESSAGE value="Client start receive money" />
     <MESSAGE value="Client show correct message in terminal." />
-    <option name="LAST_COMMIT_MESSAGE" value="Client show correct message in terminal." />
+    <MESSAGE value="final to debug in linux" />
+    <option name="LAST_COMMIT_MESSAGE" value="final to debug in linux" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
