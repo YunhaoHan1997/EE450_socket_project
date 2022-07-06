@@ -4,8 +4,8 @@
 
 - [Socket Programming Project](#socket-programming-project)
 - [Student Info](#student-info)
-  - [Student Name: Yunhao Han](#student-name-yunhao-han)
-  - [StudentID: 4415895161](#studentid-4415895161)
+  - [Student Name: xxx](#student-name-xxx)
+  - [StudentID: xxx](#studentid-xxx)
 - [What I did?](#what-i-did)
 - [How to run?](#how-to-run)
 - [How does it work?](#how-does-it-work)
