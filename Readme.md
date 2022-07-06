@@ -20,8 +20,8 @@
 <br>  
 
 # Student Info
-## Student Name: Yunhao Han
-## StudentID: 4415895161   
+## Student Name: xxx
+## StudentID: xxx
 <br> 
 
 # What I did?
