@@ -123,7 +123,7 @@ string encrypt(string s){
 
 void constructTransactions(){
     string line;
-    std::ifstream transactionFile("block3.txt");
+    ifstream transactionFile("block3.txt",ios::in);
     if(transactionFile.is_open()){
         while(!transactionFile.eof() and getline(transactionFile, line)){
             string id;
@@ -143,6 +143,7 @@ void constructTransactions(){
 
         }
     }
+    transactionFile.close();
 }
 
 void addTransaction(string id, string name1, string name2, string amount){

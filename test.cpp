@@ -51,8 +51,25 @@ struct ComputeRequestInfo
 vector<transaction> transactions;
 
 int main() {
-    srand((unsigned)time(NULL));
-    int random = (rand() % (3-1+1))+1;
-    cout<<random;
+    string line;
+    fstream transactionFile;
+    transactionFile.open("block1.txt",ios::in);
+    cout<<"get ifstream haha"<<endl;
+    if(transactionFile.is_open()){
+        while(getline(transactionFile, line)){
+            cout<<"read haha"<<endl;
+            string id;
+            string name1;
+            string name2;
+            string amount;
+            stringstream ss;
+            ss << line;
+            ss >> id >>name1 >> name2 >> amount;
+            if(!id.empty() && !name1.empty() && !name2.empty() && !amount.empty()){
+                cout<<id<< name1<<name2<<amount<<endl;
+            }
 
+        }
+    }
+    transactionFile.close();
 }
